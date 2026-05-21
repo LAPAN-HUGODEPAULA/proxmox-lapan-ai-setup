@@ -1,0 +1,165 @@
+hugo@lapan-ai:~/proxmox-lapan-ai-setup$ scripts/gather_vm_state.sh
+# Ubuntu AI VM state collection
+# Date: 2026-05-21T19:47:35+00:00
+
+## OS
+PRETTY_NAME="Ubuntu 26.04 LTS"
+NAME="Ubuntu"
+VERSION_ID="26.04"
+VERSION="26.04 LTS (Resolute Raccoon)"
+VERSION_CODENAME=resolute
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=resolute
+LOGO=ubuntu-logo
+
+## Kernel
+Linux lapan-ai 7.0.0-15-generic #15-Ubuntu SMP PREEMPT_DYNAMIC Wed Apr 22 16:06:43 UTC 2026 x86_64 GNU/Linux
+
+## CPU flags of interest
+abm
+avx
+avx2
+bmi1
+bmi2
+fma
+movbe
+pclmulqdq
+
+## Filesystems
+Filesystem                         Size  Used Avail Use% Mounted on
+tmpfs                              4,6G  1,8M  4,6G   1% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv   96G   65G   27G  72% /
+tmpfs                               12G     0   12G   0% /dev/shm
+efivarfs                           256K  110K  142K  44% /sys/firmware/efi/efivars
+none                               1,0M     0  1,0M   0% /run/credentials/systemd-journald.service
+none                               1,0M     0  1,0M   0% /run/credentials/systemd-resolved.service
+/dev/sda2                          2,0G   97M  1,7G   6% /boot
+/dev/sdb1                          492G   12G  480G   3% /srv/ai
+tmpfs                               12G     0   12G   0% /tmp
+/dev/sda1                          1,1G  6,4M  1,1G   1% /boot/efi
+none                               1,0M     0  1,0M   0% /run/credentials/systemd-networkd.service
+none                               1,0M     0  1,0M   0% /run/credentials/getty@tty1.service
+tmpfs                              2,3G  8,0K  2,3G   1% /run/user/1000
+
+## Inodes
+Filesystem                        Inodes IUsed IFree IUse% Mounted on
+tmpfs                               800K  1,2K  799K    1% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv   6,1M  394K  5,7M    7% /
+tmpfs                               2,9M     1  2,9M    1% /dev/shm
+efivarfs                               0     0     0     - /sys/firmware/efi/efivars
+none                                1,0K     1  1023    1% /run/credentials/systemd-journald.service
+none                                1,0K     1  1023    1% /run/credentials/systemd-resolved.service
+/dev/sda2                           128K   334  128K    1% /boot
+/dev/sdb1                            32M   365   32M    1% /srv/ai
+tmpfs                               1,0M    16  1,0M    1% /tmp
+/dev/sda1                              0     0     0     - /boot/efi
+none                                1,0K     1  1023    1% /run/credentials/systemd-networkd.service
+none                                1,0K     1  1023    1% /run/credentials/getty@tty1.service
+tmpfs                               587K    35  587K    1% /run/user/1000
+
+## Mounts
+TARGET  SOURCE    FSTYPE OPTIONS
+/srv/ai /dev/sdb1 ext4   rw,noatime
+TARGET SOURCE                            FSTYPE OPTIONS
+/      /dev/mapper/ubuntu--vg-ubuntu--lv ext4   rw,relatime
+
+## Block devices
+NAME                       SIZE FSTYPE      TYPE MOUNTPOINTS
+sda                        100G             disk 
+├─sda1                       1G vfat        part /boot/efi
+├─sda2                       2G ext4        part /boot
+└─sda3                    96,9G LVM2_member part 
+  └─ubuntu--vg-ubuntu--lv 96,9G ext4        lvm  /
+sdb                        500G             disk 
+└─sdb1                     500G ext4        part /srv/ai
+sr0                       1024M             rom  
+
+## Swap
+NAME      TYPE SIZE USED PRIO
+/swap.img file   8G   0B   -1
+/swapfile file  16G   0B   -1
+               total        used        free      shared  buff/cache   available
+Mem:            22Gi       4,9Gi       3,7Gi        13Mi        14Gi        18Gi
+Swap:           23Gi          0B        23Gi
+
+## NVIDIA PCI
+00:01.0 VGA compatible controller [0300]: Device [1234:1111] (rev 02)
+00:1b.0 Audio device [0403]: Intel Corporation 82801I (ICH9 Family) HD Audio Controller [8086:293e] (rev 03)
+01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GB206 [GeForce RTX 5060 Ti] [10de:2d04] (rev a1)
+01:00.1 Audio device [0403]: NVIDIA Corporation GB206 High Definition Audio Controller [10de:22eb] (rev a1)
+
+## NVIDIA driver
+Thu May 21 19:47:35 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.71.05              Driver Version: 595.71.05      CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 5060 Ti     Off |   00000000:01:00.0 Off |                  N/A |
+|  0%   40C    P8             11W /  180W |     834MiB /  16311MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A           13438      C   /usr/bin/ollama                         818MiB |
++-----------------------------------------------------------------------------------------+
+
+## NVIDIA packages
+ii  libnvidia-cfg1-595-server:amd64                       595.71.05-0ubuntu0.26.04.1                 amd64        NVIDIA binary OpenGL/GLX configuration library
+ii  libnvidia-compute-595-server:amd64                    595.71.05-0ubuntu0.26.04.1                 amd64        NVIDIA libcompute package
+ii  libnvidia-container1:amd64                            1.19.0-1                                   amd64        NVIDIA container runtime library
+ii  libnvidia-container-tools                             1.19.0-1                                   amd64        NVIDIA container runtime library (command-line tools)
+ii  nvidia-container-toolkit                              1.19.0-1                                   amd64        NVIDIA Container toolkit
+ii  nvidia-container-toolkit-base                         1.19.0-1                                   amd64        NVIDIA Container Toolkit Base
+ii  nvidia-utils-595-server                               595.71.05-0ubuntu0.26.04.1                 amd64        NVIDIA Server Driver support binaries
+rc  libnvidia-compute-595:amd64                           595.71.05-0ubuntu0.26.04.1                 amd64        NVIDIA libcompute package
+
+## Docker
+Client: Docker Engine - Community
+ Version:           29.5.2
+ API version:       1.54
+ Go version:        go1.26.3
+ Git commit:        79eb04c
+ Built:             Wed May 20 14:42:18 2026
+ OS/Arch:           linux/amd64
+ Context:           default
+permission denied while trying to connect to the docker API at unix:///var/run/docker.sock
+permission denied while trying to connect to the docker API at unix:///var/run/docker.sock
+
+## Docker GPU test hint
+Run manually if needed: sudo docker run --rm --gpus all nvidia/cuda:12.8.1-base-ubuntu24.04 nvidia-smi
+
+## Compose stack
+permission denied while trying to connect to the docker API at unix:///var/run/docker.sock
+
+## Service smoke tests
+{"models":[{"name":"embeddinggemma:latest","model":"embeddinggemma:latest","modified_at":"2026-05-21T17:15:55.975448322Z","size":621875917,"digest":"85462619ee721b466c5927d109d4cb765861907d5417b9109caebc4e614679f1","details":{"parent_model":"","format":"gguf","family":"gemma3","families":["gemma3"],"parameter_size":"307.58M","quantization_level":"BF16"}},{"name":"bge-m3:latest","model":"bge-m3:latest","modified_at":"2026-05-21T17:15:36.388572298Z","size":1157672605,"digest":"7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab","details":{"parent_model":"","format":"gguf","family":"bert","families":["bert"],"parameter_size":"566.70M","quantization_level":"F16"}},{"name":"qwen2.5-coder:7b","model":"qwen2.5-coder:7b","modified_at":"2026-05-21T17:15:14.440711214Z","size":4683087561,"digest":"dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364","details":{"parent_model":"","format":"gguf","family":"qwen2","families":["qwen2"],"parameter_size":"7.6B","quantization_level":"Q4_K_M"}},{"name":"qwen3:8b","model":"qwen3:8b","modified_at":"2026-05-21T17:14:07.435131807Z","size":5225388164,"digest":"500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41","details":{"parent_model":"","format":"gguf","family":"qwen3","families":["qwen3"],"parameter_size":"8.2B","quantization_level":"Q4_K_M"}}]}
+curl: (22) The requested URL returned error: 401
+
+## Listening ports
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*          
+LISTEN 0      4096         0.0.0.0:22         0.0.0.0:*          
+LISTEN 0      4096       127.0.0.1:8888       0.0.0.0:*          
+LISTEN 0      4096      127.0.0.54:53         0.0.0.0:*          
+LISTEN 0      4096       127.0.0.1:3000       0.0.0.0:*          
+LISTEN 0      4096       127.0.0.1:6333       0.0.0.0:*          
+LISTEN 0      4096       127.0.0.1:6334       0.0.0.0:*          
+LISTEN 0      4096       127.0.0.1:7474       0.0.0.0:*          
+LISTEN 0      4096       127.0.0.1:7687       0.0.0.0:*          
+LISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*          
+LISTEN 0      4096            [::]:22            [::]:*          
+Wrote vm-state-20260521-194735.txt
+hugo@lapan-ai:~/proxmox-lapan-ai-setup$ 
+

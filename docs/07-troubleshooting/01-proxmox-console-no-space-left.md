@@ -2,30 +2,31 @@
 
 ### 1. Objective & Prerequisites
 
-- Provide focused recovery steps for a known failure mode.
-- Required previous state: access to either Proxmox host shell or Ubuntu VM shell, as specified.
-- Estimated time: variable. Risk level: medium to high.
+- Recover Proxmox noVNC/xterm console failure caused by host root filesystem exhaustion.
+- Required previous state: SSH access to Proxmox host or physical shell.
+- Estimated time: 10-45 minutes. Risk level: medium.
 
 ### 2. Step-by-Step Execution
 
 **Step 1: Confirm host root is full**
-- **Purpose:** Distinguish Proxmox host exhaustion from VM filesystem exhaustion.
+- **Purpose:** Distinguish Proxmox host exhaustion from Ubuntu VM exhaustion.
 - **Command(s):**
 ```bash
-df -h
-df -ih
+df -h /
 pvesm status
+du -xhd1 /var/lib/vz 2>/dev/null | sort -h
 ```
-- **Explanation:** Error paths such as `/var/tmp/pve-reserved-ports.tmp.*` indicate Proxmox host root exhaustion.
-- **Expected Output:**
+- **Explanation:** Errors such as `/var/tmp/pve-reserved-ports.tmp.*` indicate host-side exhaustion.
+- **Expected Output during failure:**
 ```text
-/dev/mapper/...root  ...  100% /
+/dev/mapper/lapan--vg-root  52G  52G  0  100% /
+47G /var/lib/vz/images
 ```
-- **Verification:** `df -h /` -> Shows root usage.
-- **⚠️ Caveats/Traps:** Do not reboot a host at 100% root unless necessary.
+- **Verification:** Root is full and VM images consume `/var/lib/vz`.
+- **⚠️ Caveats/Traps:** Do not delete VM disks manually.
 
-**Step 2: Stop the VM and free safe space**
-- **Purpose:** Stop qcow2 growth and restore Proxmox service operation.
+**Step 2: Stop VM and free emergency space**
+- **Purpose:** Stop VM disk growth and restore basic Proxmox operation.
 - **Command(s):**
 ```bash
 qm stop ${VMID}
@@ -35,40 +36,40 @@ rm -f /var/tmp/pve-reserved-ports.tmp.*
 rm -rf /tmp/*
 df -h /
 ```
-- **Explanation:** These commands free safe cache/log/temp space.
-- **Expected Output:**
+- **Expected Output after recovery:**
 ```text
-Filesystem ... Avail ... Mounted on
+/dev/mapper/lapan--vg-root  62G  5.6G  54G  10% /
 ```
-- **Verification:** `/` has at least several hundred MB free.
-- **⚠️ Caveats/Traps:** Do not delete `/var/lib/vz/images/${VMID}`.
+- **Verification:** Proxmox console can open again.
+- **⚠️ Caveats/Traps:** Avoid rebooting while root is 100% unless there is no alternative.
 
-**Step 3: Move VM disks away from root-backed local storage**
-- **Purpose:** Remove the underlying cause.
+**Step 3: Move VM disks to `local-lvm`**
+- **Purpose:** Remove large VM disks from root-backed `local` storage.
 - **Command(s):**
 ```bash
-qm config ${VMID} | grep -E 'scsi|virtio|sata|ide'
-qm disk move ${VMID} scsi0 ${TARGET_STORAGE} --delete 1
-qm disk move ${VMID} scsi1 ${TARGET_STORAGE} --delete 1
+qm disk move ${VMID} scsi0 local-lvm --delete 1
+qm disk move ${VMID} scsi1 local-lvm --delete 1
+qm config ${VMID} | grep -E 'scsi|efidisk'
 ```
-- **Explanation:** `${TARGET_STORAGE}` must be a backend with sufficient space.
 - **Expected Output:**
 ```text
-transferred ...
+scsi0: local-lvm:vm-2020-disk-0,iothread=1,size=100G
+scsi1: local-lvm:vm-2020-disk-1,iothread=1,size=500G
 ```
-- **Verification:** `qm config ${VMID}` -> Disks no longer reference `local:`.
-- **⚠️ Caveats/Traps:** If only 23 GB VFree remains, inspect existing LVs; do not create a new 500 GB LV blindly.
+- **Verification:** Large data disks are on `local-lvm`.
+- **⚠️ Caveats/Traps:** The small EFI disk may remain on `local`.
 
 ### 3. Configuration Files
 
-Relevant Proxmox storage file:
+Relevant Proxmox storage config:
 
-```text
-/etc/pve/storage.cfg
+```bash
+cat /etc/pve/storage.cfg
 ```
 
 ### 4. Troubleshooting & Recovery
 
-- If `pvesm status` shows only `local`, inspect `lvs` for an unused or unconfigured thin pool.
-- If `qm disk move` fails, use `qm move_disk` syntax depending on Proxmox version.
-- If no storage is available, add physical storage or shrink/migrate disks after backup.
+- If `qm disk move` is unavailable, use `qm move_disk` on older syntax.
+- If `local-lvm` is missing, inspect `lvs` for an existing `data` thin pool before creating anything.
+- If thin-pool metadata is high, stop growing workloads and plan maintenance.
+- If `/var/tmp` errors persist after freeing space, restart Proxmox proxy services only after confirming `/` has free space.

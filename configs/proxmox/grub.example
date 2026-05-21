@@ -1,0 +1,3 @@
+# /etc/default/grub excerpt for Proxmox host
+# Keep values sanitized; merge into GRUB_CMDLINE_LINUX_DEFAULT on the real host.
+GRUB_CMDLINE_LINUX_DEFAULT="quiet nomodeset iommu=pt modprobe.blacklist=nouveau"

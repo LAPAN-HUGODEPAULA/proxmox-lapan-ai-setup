@@ -1,0 +1,114 @@
+services:
+  ollama:
+    image: ollama/ollama:${OLLAMA_TAG}
+    container_name: ollama
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      OLLAMA_KEEP_ALIVE: 24h
+    volumes:
+      - /srv/ai/ollama:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - lapan-ai-net
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:${OPEN_WEBUI_TAG}
+    container_name: open-webui
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    environment:
+      TZ: ${TZ}
+      OLLAMA_BASE_URL: http://ollama:11434
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY}
+      WEBUI_AUTH: "True"
+    volumes:
+      - /srv/ai/open-webui:/app/backend/data
+    ports:
+      - "127.0.0.1:3000:8080"
+    networks:
+      - lapan-ai-net
+
+  qdrant:
+    image: qdrant/qdrant:${QDRANT_TAG}
+    container_name: qdrant
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY}
+    volumes:
+      - /srv/ai/qdrant/storage:/qdrant/storage
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    networks:
+      - lapan-ai-net
+
+  neo4j:
+    image: neo4j:${NEO4J_TAG}
+    container_name: neo4j
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      NEO4J_AUTH: ${NEO4J_AUTH}
+      NEO4J_PLUGINS: '["apoc", "graph-data-science"]'
+      NEO4J_server_memory_heap_initial__size: 2G
+      NEO4J_server_memory_heap_max__size: 4G
+      NEO4J_server_memory_pagecache_size: 4G
+    volumes:
+      - /srv/ai/neo4j/data:/data
+      - /srv/ai/neo4j/logs:/logs
+      - /srv/ai/neo4j/import:/import
+      - /srv/ai/neo4j/plugins:/plugins
+      - /srv/ai/neo4j/conf:/conf
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    networks:
+      - lapan-ai-net
+
+  jupyter:
+    build:
+      context: ./jupyter
+      args:
+        JUPYTER_BASE_TAG: ${JUPYTER_BASE_TAG}
+    container_name: jupyter
+    restart: unless-stopped
+    depends_on:
+      - ollama
+      - qdrant
+      - neo4j
+    environment:
+      TZ: ${TZ}
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN}
+      OLLAMA_BASE_URL: http://ollama:11434
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_AUTH: ${NEO4J_AUTH}
+    volumes:
+      - /srv/ai/jupyter/work:/home/jovyan/work
+      - /srv/ai/ingest:/srv/ai/ingest
+      - /srv/ai/rag:/srv/ai/rag
+      - /srv/ai/zotero:/srv/ai/zotero:ro
+    ports:
+      - "127.0.0.1:8888:8888"
+    command: >
+      start-notebook.py
+      --ServerApp.token=${JUPYTER_TOKEN}
+      --ServerApp.allow_remote_access=True
+    networks:
+      - lapan-ai-net
+
+networks:
+  lapan-ai-net:
+    driver: bridge

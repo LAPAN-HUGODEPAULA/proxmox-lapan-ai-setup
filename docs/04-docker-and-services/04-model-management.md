@@ -2,9 +2,9 @@
 
 ### 1. Objective & Prerequisites
 
-- Pull and manage local models without filling storage.
-- Required previous state: Ollama container running; `/srv/ai` has enough free space.
-- Estimated time: variable. Risk level: medium due to disk growth.
+- Manage local Ollama models without exhausting host or guest storage.
+- Required previous state: Ollama container running; `/srv/ai` mounted with sufficient free space.
+- Estimated time: variable by model size. Risk level: medium due to disk growth.
 
 ### 2. Step-by-Step Execution
 
@@ -12,40 +12,54 @@
 - **Purpose:** Avoid repeating the storage exhaustion incident.
 - **Command(s):**
 ```bash
-df -h /srv/ai
+df -h / /srv/ai
 sudo docker exec -it ollama ollama list
 ```
-- **Explanation:** Models are stored under the Ollama volume, mapped to `/srv/ai/ollama`.
+- **Explanation:** Ollama models are stored in the bind mount mapped to `/srv/ai/ollama`.
 - **Expected Output:**
 ```text
-Filesystem Size Used Avail Use% Mounted on
-...
+/dev/sdb1  492G  12G  480G  3% /srv/ai
 ```
-- **Verification:** At least tens of GB free before pulling large models.
-- **⚠️ Caveats/Traps:** Model downloads can expand VM backing storage on Proxmox; host storage must also be healthy.
+- **Verification:** Keep tens of GB free before pulling larger models.
+- **⚠️ Caveats/Traps:** Model pulls grow the VM disk and consume Proxmox thin-pool space.
 
-**Step 2: Pull initial models**
-- **Purpose:** Install a small starting set for coding, general research, and embeddings.
+**Step 2: Maintain the validated starter model set**
+- **Purpose:** Cover coding, research, and embedding tasks with a small initial inventory.
 - **Command(s):**
 ```bash
-sudo docker exec -it ollama ollama pull qwen3:8b
-sudo docker exec -it ollama ollama pull qwen2.5-coder:7b
-sudo docker exec -it ollama ollama pull bge-m3
-sudo docker exec -it ollama ollama pull embeddinggemma
+sudo docker exec -it ollama ollama list
 ```
-- **Explanation:** Keep the initial set small until retrieval pipelines and backups are validated.
+- **Expected Output:**
+```text
+qwen3:8b
+qwen2.5-coder:7b
+bge-m3
+embeddinggemma
+```
+- **Verification:** `curl http://127.0.0.1:11434/api/tags` returns the same inventory.
+- **⚠️ Caveats/Traps:** Do not download many models before a backup and capacity review.
+
+**Step 3: Pull additional models safely**
+- **Purpose:** Add models only after checking disk impact.
+- **Command(s):**
+```bash
+df -h /srv/ai
+sudo docker exec -it ollama ollama pull ${MODEL_NAME}
+df -h /srv/ai
+pvesm status   # run on Proxmox host
+```
+- **Explanation:** Check both the guest filesystem and Proxmox thin pool after large downloads.
 - **Expected Output:**
 ```text
 pulling manifest
-pulling ...
 success
 ```
-- **Verification:** `sudo docker exec -it ollama ollama list` -> Shows the downloaded models.
-- **⚠️ Caveats/Traps:** Do not download many models before storage and backup policy are established.
+- **Verification:** `ollama list` shows the new model.
+- **⚠️ Caveats/Traps:** A guest with free `/srv/ai` can still fill a thin-provisioned host pool if unmanaged.
 
 ### 3. Configuration Files
 
-Ollama volume mapping in Compose:
+Ollama data mount in Compose:
 
 ```yaml
 volumes:
@@ -55,5 +69,6 @@ volumes:
 ### 4. Troubleshooting & Recovery
 
 - Remove unused model: `sudo docker exec -it ollama ollama rm ${MODEL_NAME}`.
-- If pull fails mid-way, check free space and retry.
-- If `/` fills, verify Docker root and `/srv/ai` mount.
+- Inspect model storage: `sudo du -sh /srv/ai/ollama`.
+- If disk fills during pull, stop Ollama and remove incomplete model blobs only after identifying the directory.
+- Always recheck `pvesm status` on the host after large model changes.

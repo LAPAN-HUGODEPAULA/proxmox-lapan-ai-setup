@@ -1,3 +1,4 @@
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -95,10 +96,10 @@ ipython_config.py
 # Pipfile.lock
 
 # UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+# Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
 #   This is especially recommended for binary packages to ensure reproducibility, and is more
 #   commonly ignored for libraries.
-# uv.lock
+uv.lock
 
 # poetry
 #   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
@@ -156,6 +157,15 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.Python
+[Bb]in
+[Ii]nclude
+[Ll]ib
+[Ll]ib64
+[Ll]ocal
+[Ss]cripts
+pyvenv.cfg
+pip-selfcheck.json
 
 # Spyder project settings
 .spyderproject
@@ -199,7 +209,7 @@ cython_debug/
 #   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 #   and can be added to the global gitignore or merged into this file. However, if you prefer, 
 #   you could uncomment the following to ignore the entire vscode folder
-# .vscode/
+.vscode/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
@@ -216,3 +226,38 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Claude Code (Anthropic)
+CLAUDE.md
+.claude/
+
+# OpenAI Codex CLI
+AGENTS.md
+AGENTS.override.md
+codex.md
+.codex/
+.agents/
+.agent/
+
+# Google Gemini CLI
+GEMINI.md
+.gemini/
+
+# Cursor (Anysphere)
+.cursor/
+.cursorrules
+.cursorignore
+.cursorindexingignore
+
+# Windsurf (Codeium)
+.windsurf/
+.windsurfrules
+
+# GitHub Copilot
+.github/copilot-instructions.md
+.github/instructions/
+.copilotignore
+
+# Qwen Code
+.qwen/
+

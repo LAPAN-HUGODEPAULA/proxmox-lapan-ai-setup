@@ -2,54 +2,108 @@
 
 ### 1. Objective & Prerequisites
 
-- Verify that the Docker AI stack is running and locally reachable.
+- Validate Docker, GPU runtime, AI service bindings, and model inventory.
 - Required previous state: Compose stack started.
-- Estimated time: 10 minutes. Risk level: low.
+- Estimated time: 5-15 minutes. Risk level: low.
 
 ### 2. Step-by-Step Execution
 
-**Step 1: Run stack validation script**
-- **Purpose:** Test the main services and GPU-enabled containers from one place.
+**Step 1: Validate Docker with permission handling**
+- **Purpose:** Confirm Docker works even when the user is not in the Docker group.
 - **Command(s):**
 ```bash
-scripts/validate_stack.sh
+sudo docker version
+sudo docker info | grep 'Docker Root Dir'
 ```
-- **Explanation:** The script checks Compose state, Docker root, NVIDIA SMI, container GPU access, and local service ports.
+- **Explanation:** The validated VM produced permission errors when running plain `docker`; this is acceptable if `sudo docker` works.
 - **Expected Output:**
 ```text
-## Compose status
-NAME ... STATUS
-## Docker root
+Docker Engine - Community
+Version: 29.5.2
 Docker Root Dir: /srv/ai/docker
-## GPU from container
-+--- NVIDIA-SMI ...
 ```
-- **Verification:** Every section completes without command failure.
-- **⚠️ Caveats/Traps:** Run from a shell with access to `sudo docker`; do not expose ports externally to make validation pass.
+- **Verification:** Docker root must be `/srv/ai/docker`.
+- **⚠️ Caveats/Traps:** Adding a user to the Docker group is root-equivalent; using `sudo docker` is the safer default.
 
-**Step 2: Verify localhost bindings**
-- **Purpose:** Confirm services are not exposed broadly.
+**Step 2: Validate GPU runtime**
+- **Purpose:** Confirm containers can see the GPU.
 - **Command(s):**
 ```bash
-ss -tlnp | grep -E '11434|3000|6333|6334|7474|7687|8888'
+nvidia-smi
+sudo docker run --rm --gpus all nvidia/cuda:12.8.1-base-ubuntu24.04 nvidia-smi
 ```
-- **Explanation:** Host-side service ports should be bound to `127.0.0.1`.
 - **Expected Output:**
 ```text
-LISTEN ... 127.0.0.1:11434 ...
-LISTEN ... 127.0.0.1:3000 ...
-...
+NVIDIA-SMI 595.71.05
+NVIDIA GeForce RTX 5060 Ti
 ```
-- **Verification:** No AI service binds to `0.0.0.0` unless explicitly approved.
-- **⚠️ Caveats/Traps:** Docker internal bridge listeners are expected; focus on published host ports.
+- **Verification:** Both commands show the GPU.
+- **⚠️ Caveats/Traps:** Host driver validation and container runtime validation are separate checks.
+
+**Step 3: Validate Ollama**
+- **Purpose:** Confirm model server is running and models are present.
+- **Command(s):**
+```bash
+curl -fsS http://127.0.0.1:11434/api/tags
+```
+- **Expected Output:**
+```text
+embeddinggemma:latest
+bge-m3:latest
+qwen2.5-coder:7b
+qwen3:8b
+```
+- **Verification:** JSON response includes all four models.
+- **⚠️ Caveats/Traps:** Ollama is intentionally bound to localhost.
+
+**Step 4: Validate Qdrant**
+- **Purpose:** Confirm vector database is protected and reachable.
+- **Command(s):**
+```bash
+source /srv/ai/compose/core/.env
+curl -fsS -H "api-key: ${QDRANT_API_KEY}" http://127.0.0.1:6333/collections
+```
+- **Explanation:** The unauthenticated request returned HTTP 401 in validation, which is expected with API key protection.
+- **Expected Output:**
+```text
+{"result":{"collections":[...]}, "status":"ok", ...}
+```
+- **Verification:** Authenticated request returns collection data or an empty collection list.
+- **⚠️ Caveats/Traps:** Do not remove `QDRANT__SERVICE__API_KEY` to make smoke tests easier.
+
+**Step 5: Validate loopback-only service exposure**
+- **Purpose:** Preserve local-only security posture.
+- **Command(s):**
+```bash
+ss -tlnp
+```
+- **Expected Output:**
+```text
+127.0.0.1:11434
+127.0.0.1:8888
+127.0.0.1:3000
+127.0.0.1:6333
+127.0.0.1:6334
+127.0.0.1:7474
+127.0.0.1:7687
+0.0.0.0:22
+```
+- **Verification:** AI services bind to `127.0.0.1`; only SSH binds broadly.
+- **⚠️ Caveats/Traps:** Do not bind Ollama, Qdrant, Neo4j, or Jupyter to `0.0.0.0` without an explicit reverse-proxy/auth policy.
 
 ### 3. Configuration Files
 
-No files are modified in this phase.
+Validation script:
+
+```bash
+scripts/validate_stack.sh
+```
+
+The script uses `sudo docker` fallback and Qdrant API-key-aware checks.
 
 ### 4. Troubleshooting & Recovery
 
-- If Ollama API fails, inspect `sudo docker logs ollama`.
-- If GPU container fails, recheck NVIDIA Container Toolkit.
-- If Open WebUI returns login/setup page, that is normal on first launch.
-- If Jupyter requires token, use `JUPYTER_TOKEN` from `.env`.
+- Plain `docker` permission denied: use `sudo docker` or run the updated scripts.
+- Qdrant 401: include `-H "api-key: ${QDRANT_API_KEY}"`.
+- Ollama no models: run `sudo docker exec -it ollama ollama list`.
+- Service missing from `ss`: inspect `sudo docker compose ps` and service logs.

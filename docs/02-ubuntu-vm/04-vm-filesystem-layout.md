@@ -2,97 +2,88 @@
 
 ### 1. Objective & Prerequisites
 
-- Mount the AI data disk at `/srv/ai`, create a swap file, and keep Docker data off `/`.
-- Required previous state: Ubuntu VM booted and the second virtual disk visible.
-- Estimated time: 20-40 minutes. Risk level: high if the wrong disk is formatted.
+- Ensure the Ubuntu VM separates OS data from AI service data.
+- Required previous state: VM online; second disk attached as `sdb`.
+- Estimated time: 10-30 minutes. Risk level: medium if editing `/etc/fstab`.
 
 ### 2. Step-by-Step Execution
 
-**Step 1: Inspect disks**
-- **Purpose:** Identify the empty AI data disk before formatting.
+**Step 1: Verify root and AI data mounts**
+- **Purpose:** Confirm that `/srv/ai` is a real mounted filesystem, not a directory inside `/`.
 - **Command(s):**
 ```bash
+df -h / /srv/ai
+findmnt /srv/ai
 lsblk -o NAME,SIZE,FSTYPE,TYPE,MOUNTPOINTS
-df -h
 ```
-- **Explanation:** The target disk should be the dedicated large virtual disk, not the OS disk.
+- **Explanation:** The OS disk should hold `/`; the 500G disk should hold `/srv/ai`.
 - **Expected Output:**
 ```text
-${AI_DISK}  500G  disk
-```
-- **Verification:** `${AI_DISK}` has no mounted partitions and is the expected size.
-- **⚠️ Caveats/Traps:** Formatting the wrong disk destroys data.
+/dev/mapper/ubuntu--vg-ubuntu--lv   96G   65G   27G  72% /
+/dev/sdb1                          492G   12G  480G   3% /srv/ai
 
-**Step 2: Create `/srv/ai` filesystem**
-- **Purpose:** Put AI data, models, databases, and Docker storage on the large disk.
+TARGET  SOURCE    FSTYPE OPTIONS
+/srv/ai /dev/sdb1 ext4   rw,noatime
+```
+- **Verification:** `/srv/ai` source is `/dev/sdb1`.
+- **⚠️ Caveats/Traps:** If `findmnt /srv/ai` returns nothing, stop Docker before pulling or building anything.
+
+**Step 2: Keep Docker storage under `/srv/ai`**
+- **Purpose:** Prevent Docker image layers and build cache from filling `/`.
 - **Command(s):**
 ```bash
-sudo parted ${AI_DISK} --script mklabel gpt
-sudo parted ${AI_DISK} --script mkpart ai-data ext4 1MiB 100%
-sudo mkfs.ext4 -m 0 -L ai-data ${AI_PARTITION}
-sudo mkdir -p /srv/ai
-sudo blkid ${AI_PARTITION}
-sudo vim /etc/fstab
-sudo mount -a
+sudo cat /etc/docker/daemon.json
+sudo docker info | grep 'Docker Root Dir'
 ```
-- **Explanation:** `-m 0` avoids reserving 5% of a data-only filesystem for root.
+- **Explanation:** Docker's `data-root` should point to the AI data disk.
 - **Expected Output:**
 ```text
-/srv/ai mounted from ${AI_PARTITION}
+Docker Root Dir: /srv/ai/docker
 ```
-- **Verification:** `findmnt /srv/ai && df -h /srv/ai` -> Shows the large AI filesystem.
-- **⚠️ Caveats/Traps:** Use UUID in `/etc/fstab`, not `/dev/vdb1`, because device names can change.
+- **Verification:** `Docker Root Dir` is not `/var/lib/docker`.
+- **⚠️ Caveats/Traps:** If Docker still uses `/var/lib/docker`, stop Docker and migrate before downloading models.
 
-**Step 3: Create service directories**
-- **Purpose:** Standardize persistent service paths.
+**Step 3: Review swap**
+- **Purpose:** Avoid accidental swap duplication or root consumption.
 - **Command(s):**
 ```bash
-sudo mkdir -p /srv/ai/{compose,ollama,open-webui,qdrant,neo4j,jupyter,ingest,rag,zotero,models,backups,secrets,logs,docker}
-sudo mkdir -p /srv/ai/qdrant/storage
-sudo mkdir -p /srv/ai/neo4j/{data,logs,import,plugins,conf}
-sudo mkdir -p /srv/ai/jupyter/work
-sudo chown -R "$USER:$USER" /srv/ai
-chmod 700 /srv/ai/secrets
+swapon --show
+free -h
 ```
-- **Explanation:** Ownership allows the admin user to maintain Compose files while services write to bind-mounted paths.
+- **Explanation:** The validated VM currently has two swap files.
 - **Expected Output:**
 ```text
-No output on success.
+/swap.img   file   8G
+/swapfile   file  16G
+Swap:       23Gi
 ```
-- **Verification:** `ls -ld /srv/ai /srv/ai/secrets` -> `/srv/ai` owned by user; secrets mode `700`.
-- **⚠️ Caveats/Traps:** Do not start Docker before `/srv/ai` is mounted.
-
-**Step 4: Add swap file**
-- **Purpose:** Provide emergency memory without a swap partition.
-- **Command(s):**
-```bash
-sudo fallocate -l ${SWAP_SIZE} /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-echo 'vm.swappiness=10' | sudo tee /etc/sysctl.d/99-ai-vm-swappiness.conf
-sudo sysctl --system
-```
-- **Explanation:** Swap is a safety net, not a substitute for RAM.
-- **Expected Output:**
-```text
-Setting up swapspace version 1, size = ...
-```
-- **Verification:** `swapon --show` -> Shows `/swapfile`.
-- **⚠️ Caveats/Traps:** Heavy swapping during LLM inference indicates insufficient RAM or too-large models.
+- **Verification:** Swap exists and is unused under normal operation.
+- **⚠️ Caveats/Traps:** Two swap files are not immediately dangerous, but simplify to one later for clarity.
 
 ### 3. Configuration Files
 
-`/etc/fstab` line:
+`/etc/fstab` should include `/srv/ai` by UUID:
 
 ```text
-UUID=${AI_DISK_UUID} /srv/ai ext4 defaults,noatime 0 2
-/swapfile none swap sw 0 0
+UUID=${AI_DATA_UUID} /srv/ai ext4 defaults,noatime 0 2
+```
+
+Docker daemon config:
+
+```json
+{
+  "data-root": "/srv/ai/docker",
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m",
+    "max-file": "3"
+  }
+}
 ```
 
 ### 4. Troubleshooting & Recovery
 
-- If `/srv/ai` is not mounted, do not pull models or start Docker.
-- If root fills, check whether `/srv/ai` was only a directory on `/`.
-- If `mount -a` fails, check UUID and filesystem type in `/etc/fstab`.
+- If `/` fills, check `/var/lib/docker`, `/srv/ai` mount state, `/var/tmp`, and journal logs.
+- If `/srv/ai` is missing after boot, run `sudo mount -a` and inspect `/etc/fstab`.
+- If Docker starts before `/srv/ai` mounts, stop Docker, mount `/srv/ai`, then restart Docker.
+- If root remains above 80%, inspect `sudo du -xhd1 / | sort -h`.

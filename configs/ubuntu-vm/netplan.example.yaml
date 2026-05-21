@@ -1,0 +1,16 @@
+# /etc/netplan/01-ai-vm.yaml
+# Replace values before use.
+network:
+  version: 2
+  ethernets:
+    ${VM_NIC_NAME}:
+      dhcp4: false
+      addresses:
+        - ${VM_IP}/${CIDR_PREFIX}
+      routes:
+        - to: default
+          via: ${LAN_GATEWAY}
+      nameservers:
+        addresses:
+          - ${LAN_DNS_1}
+          - ${LAN_DNS_2}

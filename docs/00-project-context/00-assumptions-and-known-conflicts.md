@@ -1,60 +1,59 @@
 # Assumptions and Known Conflicts
 
-
-> Status policy: this guide documents the current accepted target as Ubuntu Server 26.04 LTS. Any command output not yet re-collected after the final working state is marked `[MISSING]` and should be replaced after running `scripts/gather_host_state.sh` and `scripts/gather_vm_state.sh`.
-
-
 ### 1. Objective & Prerequisites
 
-- This file records what is accepted as true, what has been validated, and what still needs fresh terminal output.
-- Required previous state: repository created and uploaded.
-- Estimated time: 5 minutes. Risk level: none.
+- Declare the validated baseline and remaining documentation assumptions.
+- Required previous state: host and VM state scripts have been run.
+- Estimated time: 5 minutes. Risk level: low.
 
-### 2. Step-by-Step Execution
+### 2. Resolved Conflicts
 
-**Step 1: Confirm the target OS version**
-- **Purpose:** Avoid mixing obsolete Ubuntu 24.04 notes with the accepted Ubuntu 26.04 working system.
+**Step 1: Ubuntu version**
+- **Purpose:** Remove the prior 24.04/26.04 ambiguity.
 - **Command(s):**
 ```bash
 cat /etc/os-release
 ```
-- **Explanation:** Run this inside the Ubuntu VM. The final documentation should use the real PRETTY_NAME and VERSION_CODENAME reported by the VM.
 - **Expected Output:**
 ```text
 PRETTY_NAME="Ubuntu 26.04 LTS"
-VERSION_CODENAME=${UBUNTU_CODENAME}
+VERSION="26.04 LTS (Resolute Raccoon)"
 ```
-- **Verification:** `grep -E "PRETTY_NAME|VERSION_CODENAME" /etc/os-release` -> What to look for to confirm success.
-- **⚠️ Caveats/Traps:** Do not rewrite commands for another Ubuntu release unless the running VM confirms it.
+- **Verification:** This repository now documents Ubuntu Server 26.04 LTS as the working guest OS.
+- **⚠️ Caveats/Traps:** Earlier 24.04 references are historical notes unless explicitly marked as alternate guidance.
 
-
-**Step 2: Confirm the current phase status**
-- **Purpose:** Prevent outdated roadmap statements from becoming canonical documentation.
+**Step 2: Current status**
+- **Purpose:** Replace stale roadmap assumptions with measured state.
 - **Command(s):**
 ```bash
-cd /srv/ai/compose/core
-sudo docker compose ps
+VMID=2020 scripts/gather_host_state.sh
+scripts/gather_vm_state.sh
 ```
-- **Explanation:** This verifies whether the Phase 4 Docker stack is actually running.
 - **Expected Output:**
 ```text
-NAME          IMAGE                         STATUS
-ollama        ollama/ollama:...             Up ...
-open-webui    ghcr.io/open-webui/...        Up ...
-qdrant        qdrant/qdrant:...             Up ...
-neo4j         neo4j:...                     Up ...
-jupyter       ...                           Up ...
+Proxmox VE 9.1.0
+Ubuntu 26.04 LTS
+RTX 5060 Ti visible in VM
+NVIDIA-SMI 595.71.05
+/srv/ai mounted on /dev/sdb1
+Ollama models listed by API
 ```
-- **Verification:** `sudo docker compose ps` -> What to look for to confirm success.
-- **⚠️ Caveats/Traps:** If any service is exited or restarting, Phase 4 should be documented as partially complete, not complete.
-
+- **Verification:** See [Validated State](03-validated-state-2026-05-21.md).
+- **⚠️ Caveats/Traps:** The old future roadmap is archived and must not be treated as current deployment state.
 
 ### 3. Configuration Files
 
-No configuration files are applied in this phase.
+The canonical validated files are under:
 
-### 4. Troubleshooting & Recovery
+```text
+configs/
+scripts/
+archive/validation/
+```
 
-- If Ubuntu reports a different version, update every `26.04` reference before publishing.
-- If Compose services are not running, use [Service Validation](../04-docker-and-services/03-service-validation.md) before updating the roadmap.
-- If old docs contradict current state, preserve them under `archive/` and document only verified state in `docs/`.
+### 4. Known Open Items
+
+- Docker commands require `sudo` for the current user; scripts now auto-fallback to `sudo docker`.
+- Qdrant is API-key protected; unauthenticated health checks may return HTTP 401.
+- Two swap files are active inside the VM: `/swap.img` and `/swapfile`; this is safe but can be simplified later.
+- Proxmox package report says `pve-edk2-firmware: not correctly installed`; the current VM boots, but this should be reviewed during maintenance.

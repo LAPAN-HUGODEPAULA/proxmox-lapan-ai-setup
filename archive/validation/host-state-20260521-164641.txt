@@ -1,0 +1,329 @@
+root@lapan:~/proxmox-lapan-ai-setup# VMID=2020 scripts/gather_host_state.sh
+# Host state collection
+# Date: 2026-05-21T16:46:41-03:00
+
+## Proxmox version
+proxmox-ve: 9.1.0 (running kernel: 7.0.2-4-pve)
+pve-manager: 9.1.16 (running version: 9.1.16/f96ca511ec69e73c)
+proxmox-kernel-helper: 9.0.4
+proxmox-kernel-7.0: 7.0.2-4
+proxmox-kernel-7.0.2-4-pve-signed: 7.0.2-4
+proxmox-kernel-7.0.2-2-pve-signed: 7.0.2-2
+amd64-microcode: 3.20251202.1~bpo13+1
+ceph-fuse: 19.2.3-pve1
+corosync: 3.1.10-pve2
+criu: 4.1.1-1
+frr-pythontools: 10.6.1-1+pve2
+ifupdown: residual config
+ifupdown2: 3.3.0-1+pmx12
+libjs-extjs: 7.0.0-5
+libproxmox-acme-perl: 1.7.1
+libproxmox-backup-qemu0: 2.0.2
+libproxmox-rs-perl: 0.4.1
+libpve-access-control: 9.1.1
+libpve-apiclient-perl: 3.4.2
+libpve-cluster-api-perl: 9.1.5
+libpve-cluster-perl: 9.1.5
+libpve-common-perl: 9.1.12
+libpve-guest-common-perl: 6.0.3
+libpve-http-server-perl: 6.0.5
+libpve-network-perl: 1.6.1
+libpve-notify-perl: 9.1.5
+libpve-rs-perl: 0.15.1
+libpve-storage-perl: 9.1.5
+libspice-server1: 0.15.2-1+b1
+lvm2: 2.03.31-2+pmx1
+lxc-pve: 7.0.0-1
+lxcfs: 7.0.0-pve1
+novnc-pve: 1.7.0-1
+proxmox-backup-client: 4.2.0-1
+proxmox-backup-file-restore: 4.2.0-1
+proxmox-backup-restore-image: 1.0.0
+proxmox-firewall: 1.2.2
+proxmox-kernel-helper: 9.0.4
+proxmox-mail-forward: 1.0.3
+proxmox-mini-journalreader: 1.6
+proxmox-offline-mirror-helper: 0.7.3
+proxmox-widget-toolkit: 5.2.1
+pve-cluster: 9.1.5
+pve-container: 6.1.9
+pve-docs: 9.1.5
+pve-edk2-firmware: not correctly installed
+pve-esxi-import-tools: 1.0.1
+pve-firewall: 6.0.4
+pve-firmware: 3.18-3
+pve-ha-manager: 5.2.3
+pve-i18n: 3.7.1
+pve-qemu-kvm: 11.0.0-2
+pve-xtermjs: 6.0.0-1
+qemu-server: 9.1.14
+smartmontools: 7.5-pve2
+spiceterm: 3.4.2
+swtpm: 0.8.0+pve3
+vncterm: 1.9.2
+zfsutils-linux: 2.4.2-pve1
+
+## Kernel
+Linux lapan 7.0.2-4-pve #1 SMP PREEMPT_DYNAMIC PMX 7.0.2-4 (2026-05-15T07:32Z) x86_64 GNU/Linux
+
+## Filesystems
+Sist. Arq.                  Tam. Usado Disp. Uso% Montado em
+udev                         15G     0   15G   0% /dev
+tmpfs                       3,2G  2,6M  3,2G   1% /run
+/dev/mapper/lapan--vg-root   62G  5,6G   54G  10% /
+tmpfs                        16G   46M   16G   1% /dev/shm
+efivarfs                    128K   57K   67K  47% /sys/firmware/efi/efivars
+tmpfs                       5,0M     0  5,0M   0% /run/lock
+tmpfs                       1,0M     0  1,0M   0% /run/credentials/systemd-journald.service
+/dev/nvme0n1p2              944M  317M  562M  37% /boot
+tmpfs                        16G     0   16G   0% /tmp
+/dev/nvme0n1p1              975M  4,4M  970M   1% /boot/efi
+/dev/fuse                   128M   16K  128M   1% /etc/pve
+tmpfs                       1,0M     0  1,0M   0% /run/credentials/getty@tty1.service
+tmpfs                       3,2G  8,0K  3,2G   1% /run/user/0
+
+## Inodes
+Sist. Arq.                  Inós IUsado ILivre IUso% Montado em
+udev                        3,6M    664   3,6M    1% /dev
+tmpfs                       3,9M   1,1K   3,9M    1% /run
+/dev/mapper/lapan--vg-root  4,0M    86K   3,9M    3% /
+tmpfs                       3,9M    106   3,9M    1% /dev/shm
+efivarfs                       0      0      0     - /sys/firmware/efi/efivars
+tmpfs                       3,9M     17   3,9M    1% /run/lock
+tmpfs                       1,0K      1   1023    1% /run/credentials/systemd-journald.service
+/dev/nvme0n1p2               62K    366    61K    1% /boot
+tmpfs                       1,0M      7   1,0M    1% /tmp
+/dev/nvme0n1p1                 0      0      0     - /boot/efi
+/dev/fuse                   256K     30   256K    1% /etc/pve
+tmpfs                       1,0K      1   1023    1% /run/credentials/getty@tty1.service
+tmpfs                       798K     32   798K    1% /run/user/0
+
+## Proxmox storage
+Name             Type     Status     Total (KiB)      Used (KiB) Available (KiB)        %
+local             dir     active        64695968         5843908        55638640    9.03%
+local-lvm     lvmthin     active       891289600        56775147       834514452    6.37%
+
+## LVM
+  PV             VG       Fmt  Attr PSize   PFree  
+  /dev/nvme0n1p3 lapan-vg lvm2 a--  929,60g <13,52g
+  VG       #PV #LV #SN Attr   VSize   VFree  
+  lapan-vg   1   5   0 wz--n- 929,60g <13,52g
+  LV              VG       LSize   Attr       Origin Data%  Meta%  Devices               
+  data            lapan-vg 850,00g twi-aotz--        6,37   12,15  data_tdata(0)         
+  [data_tdata]    lapan-vg 850,00g Twi-ao----                      /dev/nvme0n1p3(14331) 
+  [data_tmeta]    lapan-vg 108,00m ewi-ao----                      /dev/nvme0n1p3(231931)
+  [lvol0_pmspare] lapan-vg 108,00m ewi-------                      /dev/nvme0n1p3(14304) 
+  root            lapan-vg <62,99g -wi-ao----                      /dev/nvme0n1p3(0)     
+  root            lapan-vg <62,99g -wi-ao----                      /dev/nvme0n1p3(231958)
+  swap_1          lapan-vg  <2,89g -wi-ao----                      /dev/nvme0n1p3(13565) 
+  vm-2020-disk-0  lapan-vg 100,00g Vwi-aotz--        42,09                               
+  vm-2020-disk-1  lapan-vg 500,00g Vwi-aotz--        2,41                                
+
+## Block devices
+NAME                                  SIZE FSTYPE      TYPE MOUNTPOINTS
+nvme0n1                             931,5G             disk 
+├─nvme0n1p1                           976M vfat        part /boot/efi
+├─nvme0n1p2                           977M ext4        part /boot
+└─nvme0n1p3                         929,6G LVM2_member part 
+  ├─lapan--vg-root                     63G ext4        lvm  /
+  ├─lapan--vg-swap_1                  2,9G swap        lvm  [SWAP]
+  ├─lapan--vg-data_tmeta              108M             lvm  
+  │ └─lapan--vg-data-tpool            850G             lvm  
+  │   ├─lapan--vg-data                850G             lvm  
+  │   ├─lapan--vg-vm--2020--disk--0   100G             lvm  
+  │   └─lapan--vg-vm--2020--disk--1   500G             lvm  
+  └─lapan--vg-data_tdata              850G             lvm  
+    └─lapan--vg-data-tpool            850G             lvm  
+      ├─lapan--vg-data                850G             lvm  
+      ├─lapan--vg-vm--2020--disk--0   100G             lvm  
+      └─lapan--vg-vm--2020--disk--1   500G             lvm  
+
+## IOMMU / AMD-Vi
+mai 21 11:29:04 lapan kernel: Command line: BOOT_IMAGE=/vmlinuz-7.0.2-4-pve root=/dev/mapper/lapan--vg-root ro nomodeset modprobe.blacklist=nouveau iommu=pt
+mai 21 11:29:04 lapan kernel: Kernel command line: BOOT_IMAGE=/vmlinuz-7.0.2-4-pve root=/dev/mapper/lapan--vg-root ro nomodeset modprobe.blacklist=nouveau iommu=pt
+mai 21 11:29:04 lapan kernel: AMD-Vi: Using global IVHD EFR:0x206d73ef22254ade, EFR2:0x0
+mai 21 11:29:04 lapan kernel: iommu: Default domain type: Passthrough (set via kernel command line)
+mai 21 11:29:04 lapan kernel: pci 0000:00:00.2: AMD-Vi: IOMMU performance counters supported
+mai 21 11:29:04 lapan kernel: pci 0000:00:01.0: Adding to iommu group 0
+mai 21 11:29:04 lapan kernel: pci 0000:00:01.1: Adding to iommu group 1
+mai 21 11:29:04 lapan kernel: pci 0000:00:02.0: Adding to iommu group 2
+mai 21 11:29:04 lapan kernel: pci 0000:00:02.1: Adding to iommu group 3
+mai 21 11:29:04 lapan kernel: pci 0000:00:02.2: Adding to iommu group 4
+mai 21 11:29:04 lapan kernel: pci 0000:00:08.0: Adding to iommu group 5
+mai 21 11:29:04 lapan kernel: pci 0000:00:08.1: Adding to iommu group 6
+mai 21 11:29:04 lapan kernel: pci 0000:00:14.0: Adding to iommu group 7
+mai 21 11:29:04 lapan kernel: pci 0000:00:14.3: Adding to iommu group 7
+mai 21 11:29:04 lapan kernel: pci 0000:00:18.0: Adding to iommu group 8
+mai 21 11:29:04 lapan kernel: pci 0000:00:18.1: Adding to iommu group 8
+mai 21 11:29:04 lapan kernel: pci 0000:00:18.2: Adding to iommu group 8
+mai 21 11:29:04 lapan kernel: pci 0000:00:18.3: Adding to iommu group 8
+mai 21 11:29:04 lapan kernel: pci 0000:00:18.4: Adding to iommu group 8
+mai 21 11:29:04 lapan kernel: pci 0000:00:18.5: Adding to iommu group 8
+mai 21 11:29:04 lapan kernel: pci 0000:00:18.6: Adding to iommu group 8
+mai 21 11:29:04 lapan kernel: pci 0000:00:18.7: Adding to iommu group 8
+mai 21 11:29:04 lapan kernel: pci 0000:01:00.0: Adding to iommu group 9
+mai 21 11:29:04 lapan kernel: pci 0000:01:00.1: Adding to iommu group 9
+mai 21 11:29:04 lapan kernel: pci 0000:02:00.0: Adding to iommu group 10
+mai 21 11:29:04 lapan kernel: pci 0000:02:00.1: Adding to iommu group 10
+mai 21 11:29:04 lapan kernel: pci 0000:02:00.2: Adding to iommu group 10
+mai 21 11:29:04 lapan kernel: pci 0000:03:00.0: Adding to iommu group 10
+mai 21 11:29:04 lapan kernel: pci 0000:03:08.0: Adding to iommu group 10
+mai 21 11:29:04 lapan kernel: pci 0000:03:09.0: Adding to iommu group 10
+mai 21 11:29:04 lapan kernel: pci 0000:06:00.0: Adding to iommu group 10
+mai 21 11:29:04 lapan kernel: pci 0000:07:00.0: Adding to iommu group 11
+mai 21 11:29:04 lapan kernel: pci 0000:08:00.0: Adding to iommu group 12
+mai 21 11:29:04 lapan kernel: pci 0000:08:00.1: Adding to iommu group 13
+mai 21 11:29:04 lapan kernel: pci 0000:08:00.2: Adding to iommu group 14
+mai 21 11:29:04 lapan kernel: pci 0000:08:00.3: Adding to iommu group 15
+mai 21 11:29:04 lapan kernel: pci 0000:08:00.4: Adding to iommu group 16
+mai 21 11:29:04 lapan kernel: pci 0000:08:00.6: Adding to iommu group 17
+mai 21 11:29:04 lapan kernel: AMD-Vi: Extended features (0x206d73ef22254ade, 0x0): PPR X2APIC NX GT IA GA PC GA_vAPIC
+mai 21 11:29:04 lapan kernel: AMD-Vi: Interrupt remapping enabled
+mai 21 11:29:04 lapan kernel: AMD-Vi: X2APIC enabled
+mai 21 11:29:04 lapan kernel: AMD-Vi: Virtual APIC enabled
+mai 21 11:29:04 lapan kernel: perf/amd_iommu: Detected AMD IOMMU #0 (2 banks, 4 counters/bank).
+mai 21 11:29:04 lapan kernel: VFIO - User Level meta-driver version: 0.3
+mai 21 11:29:04 lapan kernel: vfio-pci 0000:01:00.0: vgaarb: deactivate vga console
+mai 21 11:29:04 lapan kernel: vfio-pci 0000:01:00.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=none:owns=none
+mai 21 11:29:04 lapan kernel: vfio_pci: add [10de:2d04[ffffffff:ffffffff]] class 0x000000/00000000
+mai 21 11:29:05 lapan kernel: vfio-pci 0000:01:00.0: Enabling HDA controller
+mai 21 11:29:05 lapan kernel: vfio_pci: add [10de:22eb[ffffffff:ffffffff]] class 0x000000/00000000
+mai 21 11:30:55 lapan kernel: vfio-pci 0000:01:00.0: Enabling HDA controller
+mai 21 11:30:55 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 11:30:55 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 11:30:57 lapan kernel: vfio-pci 0000:01:00.0: Enabling HDA controller
+mai 21 11:30:57 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 11:30:57 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 11:30:57 lapan kernel: vfio-pci 0000:01:00.1: enabling device (0000 -> 0002)
+mai 21 11:30:57 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 11:30:57 lapan kernel: vfio-pci 0000:01:00.1: resetting
+mai 21 11:30:57 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 11:30:57 lapan kernel: vfio-pci 0000:01:00.1: reset done
+mai 21 11:30:57 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 11:30:58 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 11:33:39 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 11:33:39 lapan kernel: vfio-pci 0000:01:00.1: resetting
+mai 21 11:33:39 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 11:33:39 lapan kernel: vfio-pci 0000:01:00.1: reset done
+mai 21 11:33:39 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 11:33:39 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 11:47:56 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 11:47:56 lapan kernel: vfio-pci 0000:01:00.1: resetting
+mai 21 11:47:57 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 11:47:57 lapan kernel: vfio-pci 0000:01:00.1: reset done
+mai 21 11:47:57 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 11:47:57 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 12:38:01 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 12:38:01 lapan kernel: vfio-pci 0000:01:00.1: resetting
+mai 21 12:38:01 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 12:38:01 lapan kernel: vfio-pci 0000:01:00.1: reset done
+mai 21 12:38:44 lapan kernel: vfio-pci 0000:01:00.0: Enabling HDA controller
+mai 21 12:38:44 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 12:38:44 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 12:38:47 lapan kernel: vfio-pci 0000:01:00.0: Enabling HDA controller
+mai 21 12:38:47 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 12:38:47 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 12:38:47 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 12:38:47 lapan kernel: vfio-pci 0000:01:00.1: resetting
+mai 21 12:38:47 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 12:38:47 lapan kernel: vfio-pci 0000:01:00.1: reset done
+mai 21 12:38:47 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 12:38:47 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 13:36:20 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 13:36:20 lapan kernel: vfio-pci 0000:01:00.1: resetting
+mai 21 13:36:20 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 13:36:20 lapan kernel: vfio-pci 0000:01:00.1: reset done
+mai 21 13:54:06 lapan kernel: vfio-pci 0000:01:00.0: Enabling HDA controller
+mai 21 13:54:06 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 13:54:06 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 13:54:09 lapan kernel: vfio-pci 0000:01:00.0: Enabling HDA controller
+mai 21 13:54:09 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 13:54:09 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 13:54:09 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 13:54:09 lapan kernel: vfio-pci 0000:01:00.1: resetting
+mai 21 13:54:09 lapan kernel: vfio-pci 0000:01:00.0: reset done
+mai 21 13:54:09 lapan kernel: vfio-pci 0000:01:00.1: reset done
+mai 21 13:54:09 lapan kernel: vfio-pci 0000:01:00.0: resetting
+mai 21 13:54:09 lapan kernel: vfio-pci 0000:01:00.0: reset done
+
+## NVIDIA PCI devices
+01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GB206 [GeForce RTX 5060 Ti] [10de:2d04] (rev a1)
+01:00.1 Audio device [0403]: NVIDIA Corporation GB206 High Definition Audio Controller [10de:22eb] (rev a1)
+08:00.1 Audio device [0403]: Advanced Micro Devices, Inc. [AMD/ATI] Renoir Radeon High Definition Audio Controller [1002:1637]
+08:00.6 Audio device [0403]: Advanced Micro Devices, Inc. [AMD] Family 17h/19h/1ah HD Audio Controller [1022:15e3]
+
+## NVIDIA kernel driver binding
+01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GB206 [GeForce RTX 5060 Ti] [10de:2d04] (rev a1)
+	Subsystem: Micro-Star International Co., Ltd. [MSI] Device [1462:5351]
+	Kernel driver in use: vfio-pci
+	Kernel modules: nvidiafb, nouveau, nova_core
+01:00.1 Audio device [0403]: NVIDIA Corporation GB206 High Definition Audio Controller [10de:22eb] (rev a1)
+	Subsystem: NVIDIA Corporation Device [10de:0000]
+	Kernel driver in use: vfio-pci
+	Kernel modules: snd_hda_intel
+
+## VM config
+agent: 1
+bios: ovmf
+boot: order=scsi0;ide2;net0
+cores: 8
+cpu: host
+efidisk0: local:2020/vm-2020-disk-0.qcow2,efitype=4m,ms-cert=2023k,pre-enrolled-keys=1,size=528K
+hostpci0: 0000:01:00,pcie=1
+ide2: none,media=cdrom
+machine: q35
+memory: 24576
+meta: creation-qemu=11.0.0,ctime=1779365183
+name: lapan-ai
+net0: virtio=BC:24:11:72:CC:18,bridge=vmbr0,firewall=1
+numa: 0
+ostype: l26
+scsi0: local-lvm:vm-2020-disk-0,iothread=1,size=100G
+scsi1: local-lvm:vm-2020-disk-1,iothread=1,size=500G
+scsihw: virtio-scsi-single
+smbios1: uuid=85aa5bdc-8fb9-4136-8d63-257917bb083f
+sockets: 1
+vmgenid: 36201931-9bb5-41a1-9fa7-d5ac329c382d
+
+## Network interfaces
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+enp6s0           UP             
+vmbr0            UP             192.168.100.46/24 fe80::b282:e2ff:fe4b:a2c4/64 
+tap2020i0        UNKNOWN        
+fwbr2020i0       UP             
+fwpr2020p0@fwln2020i0 UP             
+fwln2020i0@fwpr2020p0 UP             
+
+## /etc/network/interfaces
+# network interface settings; autogenerated
+# Please do NOT modify this file directly, unless you know what
+# you're doing.
+#
+# If you want to manage parts of the network configuration manually,
+# please utilize the 'source' or 'source-directory' directives to do
+# so.
+# PVE will preserve these directives, but will NOT read its network
+# configuration from sourced files, so do not attempt to move any of
+# the PVE managed interfaces into external files!
+
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+
+iface enp6s0 inet manual
+
+auto vmbr0
+iface vmbr0 inet static
+    address 192.168.100.46/24
+    gateway 192.168.100.1
+    bridge-ports enp6s0
+    bridge-stp off
+    bridge-fd 0
+# This is an autoconfigured IPv6 interface
+
+iface enp6s0 inet6 auto
+
+Wrote host-state-20260521-164641.txt
+root@lapan:~/proxmox-lapan-ai-setup# 
+

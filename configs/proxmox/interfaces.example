@@ -1,0 +1,14 @@
+# /etc/network/interfaces excerpt for Proxmox host
+# Replace interface, IP, gateway, and subnet before use.
+auto lo
+iface lo inet loopback
+
+iface ${PHYSICAL_NIC} inet manual
+
+auto vmbr0
+iface vmbr0 inet static
+    address ${PROXMOX_HOST_IP}/${CIDR_PREFIX}
+    gateway ${LAN_GATEWAY}
+    bridge-ports ${PHYSICAL_NIC}
+    bridge-stp off
+    bridge-fd 0

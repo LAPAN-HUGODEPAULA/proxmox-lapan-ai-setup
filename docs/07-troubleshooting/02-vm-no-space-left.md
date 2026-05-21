@@ -2,72 +2,73 @@
 
 ### 1. Objective & Prerequisites
 
-- Provide focused recovery steps for a known failure mode.
-- Required previous state: access to either Proxmox host shell or Ubuntu VM shell, as specified.
-- Estimated time: variable. Risk level: medium to high.
+- Recover Ubuntu VM filesystem exhaustion caused by Docker, Ollama, or missing `/srv/ai` mount.
+- Required previous state: console or SSH access to the VM, or recovery-mode boot.
+- Estimated time: 10-60 minutes. Risk level: medium.
 
 ### 2. Step-by-Step Execution
 
 **Step 1: Stop Docker**
-- **Purpose:** Prevent further writes while diagnosing the full filesystem.
+- **Purpose:** Prevent further writes while diagnosing space usage.
 - **Command(s):**
 ```bash
 sudo systemctl stop docker docker.socket containerd
 ```
-- **Explanation:** Docker and Ollama are common sources of rapid disk growth.
 - **Expected Output:**
 ```text
 No output on success.
 ```
-- **Verification:** `systemctl is-active docker` -> Not active.
-- **⚠️ Caveats/Traps:** Do not prune blindly before identifying whether data should be preserved.
+- **Verification:** `systemctl is-active docker` returns inactive.
+- **⚠️ Caveats/Traps:** Do not prune before identifying whether data should be preserved.
 
-**Step 2: Identify the full mount**
-- **Purpose:** Determine whether `/` or `/srv/ai` is full.
+**Step 2: Confirm mount layout**
+- **Purpose:** Verify `/srv/ai` is mounted on the 500G disk.
 - **Command(s):**
 ```bash
-df -h
-du -xhd1 / 2>/dev/null | sort -h
-du -sh /var/lib/docker /srv/ai /var/tmp /tmp 2>/dev/null
+df -h / /srv/ai
 findmnt /srv/ai || true
+sudo du -xhd1 / 2>/dev/null | sort -h
 ```
-- **Explanation:** If `/srv/ai` is not mounted, AI data may have been written into root.
-- **Expected Output:**
+- **Expected Output in current validated state:**
 ```text
-[MISSING] Filesystem usage report.
+/        96G   65G   27G  72%
+/srv/ai 492G   12G  480G   3%
+/srv/ai /dev/sdb1 ext4 rw,noatime
 ```
-- **Verification:** `findmnt /srv/ai` -> Must show the large AI disk.
-- **⚠️ Caveats/Traps:** If `/srv/ai` is just a directory on `/`, stop all model downloads.
+- **Verification:** `/srv/ai` is mounted; root has free space.
+- **⚠️ Caveats/Traps:** If `/srv/ai` is missing, Docker/Ollama may have written data into `/`.
 
-**Step 3: Free emergency space**
-- **Purpose:** Restore login and package manager functionality.
+**Step 3: Verify Docker data-root**
+- **Purpose:** Ensure Docker storage lives on the AI data disk.
 - **Command(s):**
 ```bash
-sudo apt clean
-sudo journalctl --vacuum-size=200M
-sudo rm -rf /tmp/* /var/tmp/*
-df -h /
+sudo docker info | grep 'Docker Root Dir'
 ```
-- **Explanation:** These safe cleanups can restore enough space for corrective work.
 - **Expected Output:**
 ```text
-Filesystem ... Avail ... /
+Docker Root Dir: /srv/ai/docker
 ```
-- **Verification:** Root has free space.
-- **⚠️ Caveats/Traps:** Remove Ollama models only if you accept re-downloading them.
+- **Verification:** It must not be `/var/lib/docker`.
+- **⚠️ Caveats/Traps:** Moving Docker data requires Docker to be stopped.
 
 ### 3. Configuration Files
 
-Docker daemon should contain:
+Docker daemon:
 
 ```json
 {
-  "data-root": "/srv/ai/docker"
+  "data-root": "/srv/ai/docker",
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m",
+    "max-file": "3"
+  }
 }
 ```
 
 ### 4. Troubleshooting & Recovery
 
-- If Docker root is `/var/lib/docker`, migrate it to `/srv/ai/docker`.
-- If `/srv/ai` is not mounted, mount the data disk and move old root-backed data.
-- If the VM cannot log in, use recovery mode or Proxmox console after host space is fixed.
+- If root is full, clean APT cache, journal logs, `/tmp`, and `/var/tmp`.
+- If Docker root is wrong, stop Docker, migrate `/var/lib/docker` to `/srv/ai/docker`, and restart Docker.
+- If `/srv/ai` does not mount, fix `/etc/fstab` and run `sudo mount -a`.
+- If Ollama models are incomplete or corrupted, remove unused models through `ollama rm` after Docker is healthy.

@@ -1,0 +1,7 @@
+# /etc/ssh/sshd_config hardening excerpt
+PermitRootLogin no
+PasswordAuthentication no
+PubkeyAuthentication yes
+KbdInteractiveAuthentication no
+X11Forwarding no
+AllowTcpForwarding yes

@@ -2,66 +2,69 @@
 
 ### 1. Objective & Prerequisites
 
-- Install NVIDIA compute drivers inside Ubuntu VM only.
-- Required previous state: `lspci` inside Ubuntu shows the NVIDIA GPU.
-- Estimated time: 20-40 minutes. Risk level: medium.
+- Install and validate the NVIDIA driver inside the Ubuntu VM.
+- Required previous state: GPU visible inside Ubuntu with `lspci`; host uses VFIO.
+- Estimated time: 15-30 minutes. Risk level: medium.
 
 ### 2. Step-by-Step Execution
 
-**Step 1: Confirm GPU visibility**
-- **Purpose:** Avoid installing drivers before passthrough is working.
+**Step 1: Confirm PCI device visibility**
+- **Purpose:** Verify passthrough before installing or debugging drivers.
 - **Command(s):**
 ```bash
 lspci -nn | grep -Ei 'nvidia|10de|vga|3d|display|audio'
 ```
-- **Explanation:** Driver installation is meaningful only if the PCI device is visible to the guest.
+- **Explanation:** Drivers cannot fix a missing PCI device.
 - **Expected Output:**
 ```text
-... NVIDIA Corporation ... [10de:2d04]
+01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GB206 [GeForce RTX 5060 Ti] [10de:2d04]
+01:00.1 Audio device [0403]: NVIDIA Corporation GB206 High Definition Audio Controller [10de:22eb]
 ```
-- **Verification:** `lspci -nnk -d 10de:` -> Shows NVIDIA device details.
-- **⚠️ Caveats/Traps:** If this returns nothing, fix passthrough first.
+- **Verification:** Both GPU and audio functions are visible.
+- **⚠️ Caveats/Traps:** Do not reinstall NVIDIA packages if `lspci` does not show NVIDIA; fix Proxmox passthrough first.
 
-**Step 2: Install recommended GPGPU driver**
-- **Purpose:** Install compute-oriented NVIDIA driver packages.
+**Step 2: Install server driver branch**
+- **Purpose:** Provide compute-capable NVIDIA userspace and kernel modules.
 - **Command(s):**
 ```bash
 sudo apt update
 sudo apt install -y ubuntu-drivers-common
-sudo ubuntu-drivers list --gpgpu
 sudo ubuntu-drivers install --gpgpu
+sudo apt install -y nvidia-utils-595-server
 sudo reboot
 ```
-- **Explanation:** `ubuntu-drivers` selects a supported driver branch for the running Ubuntu release.
+- **Explanation:** The validated VM uses the `595-server` branch.
 - **Expected Output:**
 ```text
-[MISSING] Installed NVIDIA driver package list.
+nvidia-utils-595-server ...
 ```
-- **Verification:** `dpkg -l | grep -E 'nvidia-driver|nvidia-utils'` -> Driver and utilities installed.
-- **⚠️ Caveats/Traps:** `nvidia-smi` may be missing if the matching `nvidia-utils-*` package was not installed.
+- **Verification:** `dpkg -l | grep -E 'nvidia-utils|libnvidia'` shows `595-server` packages.
+- **⚠️ Caveats/Traps:** Match `nvidia-utils-*` to the installed driver branch.
 
-**Step 3: Install matching nvidia-utils if needed**
-- **Purpose:** Provide `nvidia-smi` when the compute driver is installed without utilities.
+**Step 3: Validate driver**
+- **Purpose:** Confirm the guest owns the GPU and CUDA runtime can see it.
 - **Command(s):**
 ```bash
-dpkg -l | grep -E 'nvidia-driver|nvidia-utils|libnvidia|nvidia-dkms' | sort
-sudo apt install -y nvidia-utils-${NVIDIA_DRIVER_BRANCH}-server
-sudo reboot
+nvidia-smi
 ```
-- **Explanation:** Match the utils branch to the installed driver branch, for example `580-server`.
 - **Expected Output:**
 ```text
-/usr/bin/nvidia-smi
+NVIDIA-SMI 595.71.05
+Driver Version: 595.71.05
+CUDA Version: 13.2
+NVIDIA GeForce RTX 5060 Ti
+Memory-Usage ... / 16311MiB
 ```
-- **Verification:** `nvidia-smi` -> Shows GPU, driver version, and CUDA version.
-- **⚠️ Caveats/Traps:** Do not mix unrelated driver branches such as 580 and 595 unless intentionally migrating.
+- **Verification:** `nvidia-smi` succeeds and reports the RTX 5060 Ti.
+- **⚠️ Caveats/Traps:** If `nvidia-smi` is missing, install the matching `nvidia-utils-*-server` package.
 
 ### 3. Configuration Files
 
-No static config file is normally required.
+No guest config file is required for basic driver operation. NVIDIA driver packages are managed by APT.
 
 ### 4. Troubleshooting & Recovery
 
-- `nvidia-smi: command not found`: install matching `nvidia-utils-*` package.
-- `NVIDIA-SMI has failed`: check `lsmod | grep nvidia`, `dkms status`, and `mokutil --sb-state`.
-- Secure Boot can block kernel modules; disable Secure Boot or enroll MOK if used.
+- Missing command: `sudo apt install -y nvidia-utils-595-server`.
+- Driver mismatch: purge old non-server packages and reinstall the server branch.
+- Secure Boot/MOK errors: check `mokutil --sb-state` and DKMS logs.
+- GPU missing: return to [GPU Not Visible in VM](../07-troubleshooting/03-gpu-not-visible-in-vm.md).
