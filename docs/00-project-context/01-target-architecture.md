@@ -11,7 +11,7 @@ flowchart TD
     P[Proxmox VE Host] --> V[Ubuntu Server 26.04 LTS VM]
     P --> S[Host bridge vmbr0]
     V --> G[RTX 5060 Ti via VFIO]
-    V --> FS[/srv/ai data mount]
+    V --> FS[`/srv/ai` data mount]
     V --> D[Docker Engine]
     D --> N[NVIDIA Container Runtime]
     N --> O[Ollama]

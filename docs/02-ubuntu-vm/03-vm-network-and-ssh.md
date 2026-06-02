@@ -73,6 +73,53 @@ sudo ufw status verbose
 - **Verification:** Open a second SSH connection from a LAN workstation.
 - **⚠️ Caveats/Traps:** Docker-published ports need explicit localhost binding; do not rely only on UFW.
 
+**Step 5: Install Tailscale for external access**
+- **Purpose:** Keep the VM static LAN IP for local services and add secure remote access from outside your network.
+- **Command(s):**
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up --ssh
+tailscale ip -4
+tailscale status
+```
+- **Explanation:** Tailscale creates `tailscale0` (overlay interface) and does not replace your Netplan static IP on the VM NIC. Use the Tailscale-assigned `100.x.y.z` address for remote access from outside.
+- **Expected Output:**
+```text
+100.x.y.z
+```
+- **Verification:**
+	- On the VM: `ip -br addr` -> `${VM_NIC_NAME}` still shows `${VM_IP}/${CIDR_PREFIX}`.
+	- From an external client logged into the same tailnet: `ssh ${VM_USER}@<tailscale-ip>` succeeds.
+- **⚠️ Caveats/Traps:**
+	- Do not remove or alter your existing Netplan static config; Tailscale is additive.
+	- Avoid `--accept-routes` unless you explicitly need subnet routes.
+	- If UFW is enabled, allow traffic on `tailscale0`:
+```bash
+sudo ufw allow in on tailscale0
+```
+
+**Step 5.1 (Optional): Restrict Tailscale access with ACL + tags**
+- **Purpose:** Limit who can SSH to the VM over Tailscale while keeping LAN static-IP access unchanged.
+- **Command(s):**
+```bash
+# On the VM, advertise a tag owned by admin users
+sudo tailscale up --ssh --advertise-tags=tag:ai-vm
+
+# Check that the tag is applied
+tailscale status
+```
+- **Explanation:** Define ACL policy in the Tailscale admin panel so only approved users/groups can reach `tag:ai-vm` on port 22.
+- **Expected Output:**
+```text
+Machine shows tag:ai-vm in tailscale status/admin panel.
+```
+- **Verification:**
+	- Allowed user from outside: `ssh ${VM_USER}@<tailscale-ip>` works.
+	- Non-allowed user: SSH is denied by tailnet ACL.
+- **⚠️ Caveats/Traps:**
+	- Tag ownership must be configured in tailnet policy (`tagOwners`) before tag advertisement succeeds.
+	- ACLs apply only to Tailscale traffic; LAN access control still depends on local firewall/SSH settings.
+
 ### 3. Configuration Files
 
 - `configs/ubuntu-vm/netplan.example.yaml`
@@ -83,3 +130,4 @@ sudo ufw status verbose
 - If SSH fails, use Proxmox console and revert `/etc/ssh/sshd_config.bak`.
 - If UFW locks you out, use console and run `sudo ufw disable`.
 - If DNS fails, check the Netplan nameserver section.
+- If Tailscale login/state breaks, run `sudo tailscale down` then `sudo tailscale up --ssh` and re-check `tailscale status`.
