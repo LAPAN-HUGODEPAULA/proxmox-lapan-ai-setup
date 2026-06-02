@@ -164,6 +164,8 @@ venv.bak/
 [Ll]ib64
 [Ll]ocal
 [Ss]cripts
+!/scripts/
+!/scripts/*.sh
 pyvenv.cfg
 pip-selfcheck.json
 
@@ -260,4 +262,3 @@ GEMINI.md
 
 # Qwen Code
 .qwen/
-

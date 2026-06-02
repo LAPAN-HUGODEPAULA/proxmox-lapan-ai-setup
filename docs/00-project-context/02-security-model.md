@@ -31,7 +31,7 @@ grep -n '127.0.0.1' docker-compose.yml
 - **Purpose:** Access UIs securely without exposing service ports directly.
 - **Command(s):**
 ```bash
-ssh   -L 3000:127.0.0.1:3000   -L 8888:127.0.0.1:8888   -L 7474:127.0.0.1:7474   -L 7687:127.0.0.1:7687   -L 6333:127.0.0.1:6333   -L 11434:127.0.0.1:11434   ${VM_USER}@${VM_IP}
+ssh   -L 3000:127.0.0.1:3000   -L 8888:127.0.0.1:8888   -L 7474:127.0.0.1:7474   -L 7687:127.0.0.1:7687   -L 6333:127.0.0.1:6333   -L 8000:127.0.0.1:8000   -L 11434:127.0.0.1:11434   ${VM_USER}@${VM_IP}
 ```
 - **Explanation:** This maps local workstation ports to VM-local service ports through SSH.
 - **Expected Output:**
@@ -59,3 +59,4 @@ chmod 700 /srv/ai/secrets
 - If SSH key login fails, re-enable console access before disabling passwords.
 - If a notebook token leaks, rotate `JUPYTER_TOKEN` and restart Jupyter.
 - If Qdrant API key leaks, rotate `QDRANT_API_KEY` and restart Qdrant.
+- If a Speaches API key leaks, rotate `SPEACHES_API_KEY` and restart Speaches.

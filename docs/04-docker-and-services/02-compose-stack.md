@@ -8,12 +8,25 @@
 
 ### 2. Step-by-Step Execution
 
-**Step 1: Prepare environment file**
+**Step 1: Deploy repo configuration to the live server path**
+- **Purpose:** Keep sanitized tracked config in the repo while running services from `/srv/ai`.
+- **Command(s):**
+```bash
+scripts/deploy_ai_stack.sh
+```
+- **Explanation:** The repo source path is `configs/ai-stack`; the live Compose path is `/srv/ai/compose/core`.
+- **Expected Output:**
+```text
+Deployed Compose source to /srv/ai/compose/core
+```
+- **Verification:** `/srv/ai/compose/core/docker-compose.yml`, `/srv/ai/compose/core/jupyter/Dockerfile`, and `/srv/ai/compose/core/.env` exist.
+- **⚠️ Caveats/Traps:** The script preserves an existing `.env` and only adds missing Speaches keys.
+
+**Step 2: Prepare environment file**
 - **Purpose:** Keep secrets and image tags outside Compose YAML.
 - **Command(s):**
 ```bash
 cd /srv/ai/compose/core
-cp .env.example .env
 vim .env
 ```
 - **Explanation:** Replace every placeholder with local secrets.
@@ -22,9 +35,9 @@ vim .env
 No output on successful edit.
 ```
 - **Verification:** `.env` exists and is not committed to Git.
-- **⚠️ Caveats/Traps:** Never commit real `WEBUI_SECRET_KEY`, `QDRANT_API_KEY`, `NEO4J_AUTH`, or `JUPYTER_TOKEN`.
+- **⚠️ Caveats/Traps:** Never commit real `WEBUI_SECRET_KEY`, `QDRANT_API_KEY`, `NEO4J_AUTH`, `JUPYTER_TOKEN`, or `SPEACHES_API_KEY`.
 
-**Step 2: Use the validated Jupyter base tag variable**
+**Step 3: Use the validated Jupyter base tag variable**
 - **Purpose:** Keep the Jupyter build reproducible and aligned with the current user-selected image tag.
 - **Command(s):**
 ```bash
@@ -39,8 +52,8 @@ jupyter/Dockerfile:ARG JUPYTER_BASE_TAG=2026-05-11
 - **Verification:** The older date-tag variable name should no longer appear in active configuration.
 - **⚠️ Caveats/Traps:** A mismatched build arg silently falls back to the Dockerfile default.
 
-**Step 3: Start services**
-- **Purpose:** Run Ollama, Open WebUI, Qdrant, Neo4j, and JupyterLab.
+**Step 4: Start services**
+- **Purpose:** Run Ollama, Speaches/Whisper, Open WebUI, Qdrant, Neo4j, and JupyterLab.
 - **Command(s):**
 ```bash
 cd /srv/ai/compose/core
@@ -53,6 +66,7 @@ sudo docker compose ps
 ```text
 NAME         STATUS
 ollama       Up
+speaches     Up
 open-webui   Up
 qdrant       Up
 neo4j        Up
@@ -73,11 +87,14 @@ QDRANT_TAG=latest
 NEO4J_TAG=2026.04.0
 JUPYTER_BASE_TAG=2026-05-11
 UV_VERSION=latest
+SPEACHES_TAG=latest-cuda
+SPEACHES_MODEL=Systran/faster-distil-whisper-large-v3
 
 WEBUI_SECRET_KEY=${REPLACE_WITH_RANDOM_HEX}
 QDRANT_API_KEY=${REPLACE_WITH_RANDOM_HEX}
 NEO4J_AUTH=neo4j/${REPLACE_WITH_STRONG_PASSWORD}
 JUPYTER_TOKEN=${REPLACE_WITH_RANDOM_TOKEN}
+SPEACHES_API_KEY=${REPLACE_WITH_RANDOM_HEX}
 ```
 
 Jupyter Dockerfile base:
@@ -92,4 +109,5 @@ FROM quay.io/jupyter/minimal-notebook:${JUPYTER_BASE_TAG}
 - If Compose cannot build Jupyter, verify that `JUPYTER_BASE_TAG` is used consistently.
 - If Docker says permission denied, run `sudo docker ...`.
 - If Qdrant returns `401`, include the `api-key` header.
+- If Speaches returns `401`, include `Authorization: Bearer ${SPEACHES_API_KEY}`.
 - If Open WebUI cannot reach Ollama, verify both are on the same Compose network and `OLLAMA_BASE_URL=http://ollama:11434`.

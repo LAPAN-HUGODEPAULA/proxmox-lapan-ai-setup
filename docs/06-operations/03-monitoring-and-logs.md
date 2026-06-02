@@ -38,6 +38,7 @@ sudo docker compose logs --tail=100 open-webui
 sudo docker compose logs --tail=100 qdrant
 sudo docker compose logs --tail=100 neo4j
 sudo docker compose logs --tail=100 jupyter
+sudo docker compose logs --tail=100 speaches
 ```
 - **Explanation:** Tail recent logs by service to avoid huge output.
 - **Expected Output:**
@@ -54,5 +55,5 @@ Docker log rotation in `/etc/docker/daemon.json` prevents unbounded container lo
 ### 4. Troubleshooting & Recovery
 
 - If logs are too large, verify Docker log options and recreate containers.
-- If GPU memory stays allocated, stop the relevant model container.
+- If GPU memory stays allocated, stop the relevant model container; Ollama and Speaches can both use VRAM.
 - If Neo4j memory pressure occurs, lower heap/pagecache in Compose.

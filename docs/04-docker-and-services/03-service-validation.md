@@ -71,7 +71,22 @@ curl -fsS -H "api-key: ${QDRANT_API_KEY}" http://127.0.0.1:6333/collections
 - **Verification:** Authenticated request returns collection data or an empty collection list.
 - **⚠️ Caveats/Traps:** Do not remove `QDRANT__SERVICE__API_KEY` to make smoke tests easier.
 
-**Step 5: Validate loopback-only service exposure**
+**Step 5: Validate Speaches / Whisper**
+- **Purpose:** Confirm local speech-to-text service is available for file, streaming, and realtime transcription clients.
+- **Command(s):**
+```bash
+source /srv/ai/compose/core/.env
+curl -fsS http://127.0.0.1:8000/health
+curl -fsS -H "Authorization: Bearer ${SPEACHES_API_KEY}" http://127.0.0.1:8000/v1/models
+```
+- **Expected Output:**
+```text
+Health endpoint succeeds and models endpoint returns JSON.
+```
+- **Verification:** `SPEACHES_MODEL` is present or can be downloaded by the Speaches service.
+- **⚠️ Caveats/Traps:** Keep the service bound to localhost because medical audio/transcripts are sensitive.
+
+**Step 6: Validate loopback-only service exposure**
 - **Purpose:** Preserve local-only security posture.
 - **Command(s):**
 ```bash
@@ -86,10 +101,11 @@ ss -tlnp
 127.0.0.1:6334
 127.0.0.1:7474
 127.0.0.1:7687
+127.0.0.1:8000
 0.0.0.0:22
 ```
 - **Verification:** AI services bind to `127.0.0.1`; only SSH binds broadly.
-- **⚠️ Caveats/Traps:** Do not bind Ollama, Qdrant, Neo4j, or Jupyter to `0.0.0.0` without an explicit reverse-proxy/auth policy.
+- **⚠️ Caveats/Traps:** Do not bind Ollama, Speaches, Qdrant, Neo4j, or Jupyter to `0.0.0.0` without an explicit reverse-proxy/auth policy.
 
 ### 3. Configuration Files
 
@@ -105,5 +121,6 @@ The script uses `sudo docker` fallback and Qdrant API-key-aware checks.
 
 - Plain `docker` permission denied: use `sudo docker` or run the updated scripts.
 - Qdrant 401: include `-H "api-key: ${QDRANT_API_KEY}"`.
+- Speaches 401: include `-H "Authorization: Bearer ${SPEACHES_API_KEY}"`.
 - Ollama no models: run `sudo docker exec -it ollama ollama list`.
 - Service missing from `ss`: inspect `sudo docker compose ps` and service logs.

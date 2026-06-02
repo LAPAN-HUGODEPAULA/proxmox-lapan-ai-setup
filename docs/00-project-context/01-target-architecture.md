@@ -15,10 +15,12 @@ flowchart TD
     V --> D[Docker Engine]
     D --> N[NVIDIA Container Runtime]
     N --> O[Ollama]
+    N --> STT[Speaches / Whisper STT]
     N --> W[Open WebUI]
     N --> Q[Qdrant]
     N --> J[JupyterLab]
     N --> Neo[Neo4j]
+    STT --> TR[Realtime transcription]
     Q --> R[Hybrid RAG]
     Neo --> SG[Semantic graphs]
 ```
@@ -65,13 +67,23 @@ ollama          Up ...
 
 ### 3. Configuration Files
 
-Primary runtime configuration lives in:
+Sanitized repo configuration lives in:
 
 ```text
 configs/ai-stack/docker-compose.yml
 configs/ai-stack/.env.example
 configs/ubuntu-vm/docker-daemon.json
 ```
+
+Live server configuration is deployed to:
+
+```text
+/srv/ai/compose/core/docker-compose.yml
+/srv/ai/compose/core/.env
+/srv/ai/compose/core/jupyter/Dockerfile
+```
+
+Use `scripts/deploy_ai_stack.sh` to sync repo configuration to the live path without overwriting existing secrets.
 
 ### 4. Troubleshooting & Recovery
 

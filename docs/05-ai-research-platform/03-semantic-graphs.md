@@ -12,7 +12,8 @@
 - **Purpose:** Confirm graph database is ready before ingestion tooling is written.
 - **Command(s):**
 ```bash
-sudo docker exec -it neo4j cypher-shell -u neo4j -p '${NEO4J_PASSWORD}' 'RETURN 1 AS ok;'
+source /srv/ai/compose/core/.env
+sudo docker exec -it neo4j cypher-shell -u neo4j -p "${NEO4J_AUTH#neo4j/}" 'RETURN 1 AS ok;'
 ```
 - **Explanation:** `cypher-shell` verifies Bolt/auth and the database process.
 - **Expected Output:**

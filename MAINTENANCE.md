@@ -51,6 +51,12 @@ sudo docker compose build --pull
 sudo docker compose up -d
 ```
 
+Update only the Whisper transcription service:
+
+```bash
+scripts/install_whisper_service.sh
+```
+
 Validate:
 
 ```bash
@@ -94,10 +100,12 @@ Minimum backup targets:
 /srv/ai/qdrant
 /srv/ai/neo4j
 /srv/ai/jupyter/work
+/srv/ai/rag
+/srv/ai/zotero/exports
 /etc/docker/daemon.json
 ```
 
-Large Ollama model files are usually re-downloadable and may be excluded from routine backups unless bandwidth is constrained.
+Large Ollama and Speaches/Hugging Face model files are usually re-downloadable and may be excluded from routine backups unless bandwidth is constrained.
 
 ## 5. Rollback GPU Passthrough
 

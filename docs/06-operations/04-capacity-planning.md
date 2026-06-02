@@ -31,7 +31,7 @@ data        850.00g twi-aotz-- 6.37 12.15
 ```bash
 df -h / /srv/ai
 sudo docker system df
-sudo du -sh /srv/ai/ollama /srv/ai/docker /srv/ai/qdrant /srv/ai/neo4j 2>/dev/null
+sudo du -sh /srv/ai/ollama /srv/ai/docker /srv/ai/qdrant /srv/ai/neo4j /srv/ai/models 2>/dev/null
 ```
 - **Expected Output:**
 ```text
@@ -64,5 +64,5 @@ No file modification is required for monitoring.
 
 - If Proxmox `local-lvm` grows unexpectedly, check VM writes under `/srv/ai`.
 - If VM `/` grows, check Docker root and `/var/log`.
-- If `/srv/ai` grows, check Ollama models and Qdrant/Neo4j data.
+- If `/srv/ai` grows, check Ollama models, Speaches/Hugging Face model cache, and Qdrant/Neo4j data.
 - If VRAM stays allocated, restart Ollama or reduce keep-alive.

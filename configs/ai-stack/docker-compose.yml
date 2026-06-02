@@ -20,6 +20,37 @@ services:
     networks:
       - lapan-ai-net
 
+  speaches:
+    image: ghcr.io/speaches-ai/speaches:${SPEACHES_TAG:-latest-cuda}
+    container_name: speaches
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      API_KEY: ${SPEACHES_API_KEY:-}
+      UVICORN_HOST: 0.0.0.0
+      UVICORN_PORT: 8000
+      LOG_LEVEL: info
+      ENABLE_UI: "false"
+      STT_MODEL_TTL: "-1"
+      VAD_MODEL_TTL: "-1"
+      PRELOAD_MODELS: '["${SPEACHES_MODEL:-Systran/faster-distil-whisper-large-v3}"]'
+      WHISPER__INFERENCE_DEVICE: cuda
+      WHISPER__COMPUTE_TYPE: float16
+    volumes:
+      - /srv/ai/models/huggingface:/home/ubuntu/.cache/huggingface/hub
+      - /srv/ai/logs/speaches:/srv/ai/logs/speaches
+    ports:
+      - "127.0.0.1:8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - lapan-ai-net
+
   open-webui:
     image: ghcr.io/open-webui/open-webui:${OPEN_WEBUI_TAG}
     container_name: open-webui

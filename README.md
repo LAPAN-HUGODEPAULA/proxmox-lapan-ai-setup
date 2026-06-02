@@ -11,14 +11,16 @@ flowchart TD
     B --> D[Docker Engine]
     D --> E[NVIDIA Container Toolkit]
     E --> F[Ollama]
-    E --> G[Open WebUI]
-    E --> H[Qdrant]
-    E --> I[Neo4j]
-    E --> J[JupyterLab]
-    F --> K[Local LLMs and embeddings]
-    H --> L[Hybrid RAG]
-    I --> M[Semantic graphs and taxonomies]
-    J --> N[Research notebooks and ingestion]
+    E --> G[Speaches / Whisper STT]
+    E --> H[Open WebUI]
+    E --> I[Qdrant]
+    E --> J[Neo4j]
+    E --> K[JupyterLab]
+    F --> L[Local LLMs and embeddings]
+    G --> M[Realtime/local transcription]
+    I --> N[Hybrid RAG]
+    J --> O[Semantic graphs and taxonomies]
+    K --> P[Research notebooks and ingestion]
 ```
 
 ## Current Status
@@ -79,6 +81,7 @@ See [Validated State](docs/00-project-context/03-validated-state-2026-05-21.md) 
 - [Compose Stack](docs/04-docker-and-services/02-compose-stack.md)
 - [Service Validation](docs/04-docker-and-services/03-service-validation.md)
 - [Model Management](docs/04-docker-and-services/04-model-management.md)
+- [Whisper Transcription Service](docs/04-docker-and-services/05-whisper-transcription-service.md)
 
 ### Research Platform
 
