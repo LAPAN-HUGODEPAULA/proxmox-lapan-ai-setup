@@ -18,8 +18,9 @@ scripts/install_whisper_service.sh
 - **Expected Output:**
 ```text
 Speaches is healthy at http://127.0.0.1:8000
+Speaches model is available: Systran/faster-distil-whisper-large-v3
 ```
-- **Verification:** `curl -fsS http://127.0.0.1:8000/health` succeeds.
+- **Verification:** Authenticated `/health` succeeds, `/v1/models` lists `${SPEACHES_MODEL}`, and `/srv/ai/models/huggingface` is not empty.
 - **⚠️ Caveats/Traps:** The model download uses Hugging Face during first startup; do this before a real consultation.
 
 **Step 2: Validate file transcription**
@@ -80,6 +81,7 @@ configs/ai-stack/docker-compose.yml
 ### 4. Troubleshooting & Recovery
 
 - If startup is slow, check `sudo docker compose logs --tail=100 speaches`; the first run may be downloading the model.
+- If `/v1/models` is empty, run `scripts/install_whisper_service.sh`; it downloads `${SPEACHES_MODEL}` through the Speaches model API and waits for it to be listed.
 - If transcription is slow, stop competing GPU workloads or choose a smaller `SPEACHES_MODEL`.
 - If the endpoint returns `401`, include `Authorization: Bearer ${SPEACHES_API_KEY}`.
 - If a consultation transcript may contain patient data, keep it local, restrict file permissions, and do not paste logs or transcripts into public systems.

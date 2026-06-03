@@ -6,8 +6,10 @@ services:
     environment:
       TZ: ${TZ}
       OLLAMA_KEEP_ALIVE: 24h
+      OLLAMA_MODELS: /root/.ollama/models
     volumes:
       - /srv/ai/ollama:/root/.ollama
+    gpus: all
     ports:
       - "127.0.0.1:11434:11434"
     deploy:
@@ -31,6 +33,7 @@ services:
       UVICORN_PORT: 8000
       LOG_LEVEL: info
       ENABLE_UI: "false"
+      HF_HUB_CACHE: /home/ubuntu/.cache/huggingface/hub
       STT_MODEL_TTL: "-1"
       VAD_MODEL_TTL: "-1"
       PRELOAD_MODELS: '["${SPEACHES_MODEL:-Systran/faster-distil-whisper-large-v3}"]'
@@ -39,6 +42,7 @@ services:
     volumes:
       - /srv/ai/models/huggingface:/home/ubuntu/.cache/huggingface/hub
       - /srv/ai/logs/speaches:/srv/ai/logs/speaches
+    gpus: all
     ports:
       - "127.0.0.1:8000:8000"
     deploy:
@@ -126,10 +130,15 @@ services:
       QDRANT_API_KEY: ${QDRANT_API_KEY}
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_AUTH: ${NEO4J_AUTH}
+      RAG_COLLECTION: ${RAG_COLLECTION:-research_chunks_bge_m3}
+      RERANKER_MODEL: ${RERANKER_MODEL:-BAAI/bge-reranker-v2-m3}
+      HF_HUB_CACHE: /home/jovyan/.cache/huggingface/hub
+      SENTENCE_TRANSFORMERS_HOME: /home/jovyan/.cache/huggingface/hub
     volumes:
       - /srv/ai/jupyter/work:/home/jovyan/work
       - /srv/ai/ingest:/srv/ai/ingest
       - /srv/ai/rag:/srv/ai/rag
+      - /srv/ai/models/huggingface:/home/jovyan/.cache/huggingface/hub
       - /srv/ai/zotero:/srv/ai/zotero:ro
     ports:
       - "127.0.0.1:8888:8888"

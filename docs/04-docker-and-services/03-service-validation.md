@@ -76,14 +76,14 @@ curl -fsS -H "api-key: ${QDRANT_API_KEY}" http://127.0.0.1:6333/collections
 - **Command(s):**
 ```bash
 source /srv/ai/compose/core/.env
-curl -fsS http://127.0.0.1:8000/health
+curl -fsS -H "Authorization: Bearer ${SPEACHES_API_KEY}" http://127.0.0.1:8000/health
 curl -fsS -H "Authorization: Bearer ${SPEACHES_API_KEY}" http://127.0.0.1:8000/v1/models
 ```
 - **Expected Output:**
 ```text
 Health endpoint succeeds and models endpoint returns JSON.
 ```
-- **Verification:** `SPEACHES_MODEL` is present or can be downloaded by the Speaches service.
+- **Verification:** `SPEACHES_MODEL` is present in `/v1/models` and `/srv/ai/models/huggingface` is not empty.
 - **⚠️ Caveats/Traps:** Keep the service bound to localhost because medical audio/transcripts are sensitive.
 
 **Step 6: Validate loopback-only service exposure**
@@ -115,7 +115,7 @@ Validation script:
 scripts/validate_stack.sh
 ```
 
-The script uses `sudo docker` fallback and Qdrant API-key-aware checks.
+The script uses `sudo docker` fallback, Qdrant API-key-aware checks, Speaches bearer auth when configured, and model-storage checks for `/srv/ai/ollama` plus `/srv/ai/models/huggingface`.
 
 ### 4. Troubleshooting & Recovery
 

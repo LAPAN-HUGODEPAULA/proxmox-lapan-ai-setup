@@ -1,0 +1,26 @@
+version: 1
+rag:
+  collection: research_chunks_bge_m3
+  embedding_model: bge-m3
+  embedding_dimension: 1024
+  reranker_model: BAAI/bge-reranker-v2-m3
+  zotero_export: /srv/ai/zotero/exports/library.bib
+  pdf_root: /srv/ai/zotero/pdfs
+  ingest_root: /srv/ai/ingest
+  benchmark_root: /srv/ai/rag/benchmarks
+
+graph:
+  constraints:
+    - label: Paper
+      property: doc_id
+      unique: true
+    - label: Chunk
+      property: chunk_id
+      unique: true
+    - label: Concept
+      property: name
+      unique: true
+
+agents:
+  policy_root: /srv/ai/agents/policies
+  audit_root: /srv/ai/agents/audit

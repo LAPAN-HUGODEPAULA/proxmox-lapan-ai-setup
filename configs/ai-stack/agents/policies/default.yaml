@@ -1,0 +1,31 @@
+version: 1
+default_policy:
+  internet: false
+  shell: allowlisted
+  docker_socket: false
+  filesystem_root: /srv/ai/agents
+  audit_required: true
+  human_review_required: true
+
+roles:
+  coding:
+    allowed_tools:
+      - read_file
+      - write_scratch
+      - query_qdrant
+      - query_neo4j
+  papers:
+    allowed_tools:
+      - read_file
+      - write_scratch
+      - query_qdrant
+  graphs:
+    allowed_tools:
+      - read_file
+      - write_scratch
+      - query_neo4j
+  clinical:
+    allowed_tools:
+      - read_file
+      - write_scratch
+    human_review_required: true

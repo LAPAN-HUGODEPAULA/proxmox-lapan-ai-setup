@@ -53,7 +53,9 @@ archive/validation/
 
 ### 4. Known Open Items
 
-- Docker commands require `sudo` for the current user; scripts now auto-fallback to `sudo docker`.
+- Docker commands require root access; keep the user out of the Docker group by default and use the root-owned maintenance wrappers from the remediation plan for noninteractive validation.
 - Qdrant is API-key protected; unauthenticated health checks may return HTTP 401.
-- Two swap files are active inside the VM: `/swap.img` and `/swapfile`; this is safe but can be simplified later.
+- Speaches may require `Authorization: Bearer ${SPEACHES_API_KEY}` even for health/model validation; scripts now include the header when a key is configured.
+- Root was measured at 83% on 2026-06-03. Ollama models were verified under `/srv/ai/ollama`; root cleanup should focus first on `/swap.img`, duplicate `/swapfile` entries, and a sudo-level disk audit.
+- RAG ingestion, reranking, graph constraints, Zotero export, and agent policy/audit setup are tracked in the remediation plan.
 - Proxmox package report says `pve-edk2-firmware: not correctly installed`; the current VM boots, but this should be reviewed during maintenance.

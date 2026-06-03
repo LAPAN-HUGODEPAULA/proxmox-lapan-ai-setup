@@ -89,6 +89,8 @@ JUPYTER_BASE_TAG=2026-05-11
 UV_VERSION=latest
 SPEACHES_TAG=latest-cuda
 SPEACHES_MODEL=Systran/faster-distil-whisper-large-v3
+RAG_COLLECTION=research_chunks_bge_m3
+RERANKER_MODEL=BAAI/bge-reranker-v2-m3
 
 WEBUI_SECRET_KEY=${REPLACE_WITH_RANDOM_HEX}
 QDRANT_API_KEY=${REPLACE_WITH_RANDOM_HEX}
@@ -111,3 +113,4 @@ FROM quay.io/jupyter/minimal-notebook:${JUPYTER_BASE_TAG}
 - If Qdrant returns `401`, include the `api-key` header.
 - If Speaches returns `401`, include `Authorization: Bearer ${SPEACHES_API_KEY}`.
 - If Open WebUI cannot reach Ollama, verify both are on the same Compose network and `OLLAMA_BASE_URL=http://ollama:11434`.
+- If Ollama or Speaches runs on CPU, verify `gpus: all`, the Docker NVIDIA runtime, and the container GPU test.

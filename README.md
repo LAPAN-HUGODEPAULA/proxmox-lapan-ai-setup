@@ -41,6 +41,8 @@ Validated on 2026-05-21:
 
 See [Validated State](docs/00-project-context/03-validated-state-2026-05-21.md) for the measured output summary.
 
+Follow-up review on 2026-06-03 found `/` at 83% and `/srv/ai` at 3%. Ollama model data was verified under `/srv/ai/ollama`, not the root filesystem; root cleanup is tracked in the remediation plan.
+
 ## Quick Start for Documentation Users
 
 1. Read [Assumptions and Known Conflicts](docs/00-project-context/00-assumptions-and-known-conflicts.md).
@@ -56,6 +58,9 @@ See [Validated State](docs/00-project-context/03-validated-state-2026-05-21.md) 
 - [Target Architecture](docs/00-project-context/01-target-architecture.md)
 - [Security Model](docs/00-project-context/02-security-model.md)
 - [Validated State — 2026-05-21](docs/00-project-context/03-validated-state-2026-05-21.md)
+- [Remediation Plan — 2026-06-03](docs/00-project-context/04-remediation-plan-2026-06-03.md)
+- [Architecture and Usage Guide](docs/00-project-context/05-architecture-and-usage-guide.md)
+- [Next Steps — 2026-06-03](docs/00-project-context/06-next-steps-2026-06-03.md)
 
 ### Host Preparation
 

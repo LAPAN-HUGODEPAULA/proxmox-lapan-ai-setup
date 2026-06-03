@@ -15,7 +15,7 @@
 df -h / /srv/ai
 sudo docker exec -it ollama ollama list
 ```
-- **Explanation:** Ollama models are stored in the bind mount mapped to `/srv/ai/ollama`.
+- **Explanation:** Ollama models are stored in the bind mount mapped to `/srv/ai/ollama`; inside the container `OLLAMA_MODELS=/root/.ollama/models`.
 - **Expected Output:**
 ```text
 /dev/sdb1  492G  12G  480G  3% /srv/ai
@@ -39,7 +39,23 @@ embeddinggemma
 - **Verification:** `curl http://127.0.0.1:11434/api/tags` returns the same inventory.
 - **⚠️ Caveats/Traps:** Do not download many models before a backup and capacity review.
 
-**Step 3: Pull additional models safely**
+**Step 3: Confirm models are not on root**
+- **Purpose:** Catch accidental root-side caches before they grow.
+- **Command(s):**
+```bash
+sudo du -sh /srv/ai/ollama /srv/ai/models/huggingface /home/*/.ollama /usr/share/ollama/.ollama /var/lib/ollama /var/lib/docker 2>/dev/null || true
+sudo docker info | grep 'Docker Root Dir'
+```
+- **Expected Output:**
+```text
+/srv/ai/ollama
+/srv/ai/models/huggingface
+Docker Root Dir: /srv/ai/docker
+```
+- **Verification:** Large model caches are on `/srv/ai`, not `/`.
+- **⚠️ Caveats/Traps:** Stop Docker before moving a model cache.
+
+**Step 4: Pull additional models safely**
 - **Purpose:** Add models only after checking disk impact.
 - **Command(s):**
 ```bash

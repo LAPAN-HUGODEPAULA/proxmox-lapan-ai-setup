@@ -25,6 +25,7 @@ tar -czf "${archive}" \
   --exclude='docker' \
   --exclude='models/huggingface' \
   -C "${ai_root}" \
+  agents \
   compose/core/docker-compose.yml \
   compose/core/jupyter/Dockerfile \
   open-webui \

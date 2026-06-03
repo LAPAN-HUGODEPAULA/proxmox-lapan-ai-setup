@@ -43,7 +43,7 @@ sudo docker compose logs --tail=100 speaches
 - **Explanation:** Tail recent logs by service to avoid huge output.
 - **Expected Output:**
 ```text
-[MISSING] Service-specific logs.
+No repeated restart loops, permission errors, model download failures, or GPU runtime errors.
 ```
 - **Verification:** No repeated crash loops or permission errors.
 - **⚠️ Caveats/Traps:** Do not paste secrets from logs into public issues.

@@ -21,7 +21,7 @@
 - **Explanation:** SVM enables AMD virtualization; IOMMU enables safe PCI passthrough; Above 4G Decoding and Resizable BAR support modern GPU address mapping.
 - **Expected Output:**
 ```text
-[MISSING] BIOS screenshot or manual confirmation.
+Manual confirmation recorded on 2026-06-03.
 ```
 - **Verification:** `journalctl -k -b | grep -Ei 'iommu|amd-vi'` -> Kernel should report AMD-Vi/IOMMU availability after boot.
 - **⚠️ Caveats/Traps:** Firmware labels vary by motherboard; do not disable CSM/UEFI settings blindly if the host already boots reliably.

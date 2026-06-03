@@ -77,6 +77,12 @@ Docker daemon config:
   "log-opts": {
     "max-size": "100m",
     "max-file": "3"
+  },
+  "runtimes": {
+    "nvidia": {
+      "path": "nvidia-container-runtime",
+      "args": []
+    }
   }
 }
 ```

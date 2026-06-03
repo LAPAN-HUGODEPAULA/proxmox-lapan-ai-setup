@@ -21,8 +21,13 @@ flowchart TD
     N --> J[JupyterLab]
     N --> Neo[Neo4j]
     STT --> TR[Realtime transcription]
+    J --> Z[Zotero exports]
+    J --> RR[Local reranker]
     Q --> R[Hybrid RAG]
+    RR --> R
+    Z --> R
     Neo --> SG[Semantic graphs]
+    R --> A[Local agents with policy and audit]
 ```
 
 ### 2. Step-by-Step Execution

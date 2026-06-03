@@ -25,6 +25,12 @@ python3 -m json.tool /etc/docker/daemon.json
     "log-opts": {
         "max-size": "100m",
         "max-file": "3"
+    },
+    "runtimes": {
+        "nvidia": {
+            "path": "nvidia-container-runtime",
+            "args": []
+        }
     }
 }
 ```
@@ -63,7 +69,7 @@ Setting up docker-compose-plugin ...
 
 ### 3. Configuration Files
 
-`/etc/docker/daemon.json` from `configs/ubuntu-vm/docker-daemon.json`.
+`/etc/docker/daemon.json` from `configs/ubuntu-vm/docker-daemon.json`. It should include both `/srv/ai/docker` as the data root and the NVIDIA container runtime entry.
 
 ### 4. Troubleshooting & Recovery
 

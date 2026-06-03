@@ -27,6 +27,13 @@ mkdir -p \
   "${live_compose}/jupyter" \
   "${live_root}/backups" \
   "${live_root}/docker" \
+  "${live_root}/agents/audit" \
+  "${live_root}/agents/clinical" \
+  "${live_root}/agents/coding" \
+  "${live_root}/agents/graphs" \
+  "${live_root}/agents/papers" \
+  "${live_root}/agents/policies" \
+  "${live_root}/agents/scratch" \
   "${live_root}/ingest/raw" \
   "${live_root}/ingest/parsed" \
   "${live_root}/ingest/chunks" \
@@ -42,13 +49,18 @@ mkdir -p \
   "${live_root}/ollama" \
   "${live_root}/open-webui" \
   "${live_root}/qdrant/storage" \
+  "${live_root}/rag/benchmarks" \
   "${live_root}/rag/configs" \
+  "${live_root}/rag/pipelines" \
+  "${live_root}/rag/rerankers" \
   "${live_root}/secrets" \
   "${live_root}/zotero/exports" \
   "${live_root}/zotero/pdfs"
 
 install -m 0644 "${repo_root}/configs/ai-stack/docker-compose.yml" "${live_compose}/docker-compose.yml"
 install -m 0644 "${repo_root}/configs/ai-stack/jupyter/Dockerfile" "${live_compose}/jupyter/Dockerfile"
+install -m 0644 "${repo_root}/configs/ai-stack/rag/research-platform.yaml" "${live_root}/rag/configs/research-platform.yaml"
+install -m 0644 "${repo_root}/configs/ai-stack/agents/policies/default.yaml" "${live_root}/agents/policies/default.yaml"
 
 if [[ ! -f "${env_file}" ]]; then
   install -m 0600 "${repo_root}/configs/ai-stack/.env.example" "${env_file}"
@@ -60,5 +72,7 @@ fi
 append_if_missing "SPEACHES_TAG" "latest-cuda"
 append_if_missing "SPEACHES_MODEL" "Systran/faster-distil-whisper-large-v3"
 append_if_missing "SPEACHES_API_KEY" "$(generate_secret)"
+append_if_missing "RAG_COLLECTION" "research_chunks_bge_m3"
+append_if_missing "RERANKER_MODEL" "BAAI/bge-reranker-v2-m3"
 
 echo "Deployed Compose source to ${live_compose}"

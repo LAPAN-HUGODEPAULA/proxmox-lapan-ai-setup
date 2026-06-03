@@ -39,7 +39,7 @@ sudo du -sh /srv/ai/ollama /srv/ai/docker /srv/ai/qdrant /srv/ai/neo4j /srv/ai/m
 /srv/ai 492G   12G  480G   3%
 ```
 - **Verification:** Root should not exceed 80%; `/srv/ai` has large headroom.
-- **⚠️ Caveats/Traps:** Docker build cache and model pulls are the largest growth points.
+- **⚠️ Caveats/Traps:** Docker build cache, model pulls, and duplicate swap files are the largest growth points. On 2026-06-03, Ollama was verified under `/srv/ai/ollama`; root pressure came from swap and privileged paths needing a sudo audit.
 
 **Step 3: Monitor GPU memory**
 - **Purpose:** Match models to available VRAM.
@@ -63,6 +63,6 @@ No file modification is required for monitoring.
 ### 4. Troubleshooting & Recovery
 
 - If Proxmox `local-lvm` grows unexpectedly, check VM writes under `/srv/ai`.
-- If VM `/` grows, check Docker root and `/var/log`.
+- If VM `/` grows, check swap files, Docker root, `/var/log`, `/tmp`, and `/var/tmp`.
 - If `/srv/ai` grows, check Ollama models, Speaches/Hugging Face model cache, and Qdrant/Neo4j data.
 - If VRAM stays allocated, restart Ollama or reduce keep-alive.

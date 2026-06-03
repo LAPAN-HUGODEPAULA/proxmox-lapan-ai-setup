@@ -9,6 +9,17 @@ if ! docker info >/dev/null 2>&1; then
   docker_cmd=(sudo docker)
 fi
 
+speaches_auth_args=()
+if [[ -f /srv/ai/compose/core/.env ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source /srv/ai/compose/core/.env
+  set +a
+  if [[ -n "${SPEACHES_API_KEY:-}" ]]; then
+    speaches_auth_args=(-H "Authorization: Bearer ${SPEACHES_API_KEY}")
+  fi
+fi
+
 {
   echo "# Ubuntu AI VM state collection"
   echo "# Date: $(date -u --iso-8601=seconds)"
@@ -50,7 +61,9 @@ fi
   echo "## Service smoke tests"
   curl -fsS http://127.0.0.1:11434/api/tags || true
   echo
-  curl -fsS http://127.0.0.1:8000/health || true
+  curl -fsS "${speaches_auth_args[@]}" http://127.0.0.1:8000/health || true
+  echo
+  curl -fsS "${speaches_auth_args[@]}" http://127.0.0.1:8000/v1/models || true
   echo
   echo
   echo "## Listening ports"
